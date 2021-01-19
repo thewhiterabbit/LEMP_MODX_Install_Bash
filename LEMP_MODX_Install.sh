@@ -135,12 +135,12 @@ EOF
 #apt-get install -y nodejs
 
 
-#Install MariaDB (MySQL) and set a strong root password
+#Install MySQL and set a strong root password
 
 echo "Installing MySQL Server..."
 sudo apt install -y mysql-server
 
-#Secure your MariaDB installation
+#Secure your MySQL installation
 
 MYSQL_ROOT_PASSWORD=$(date +%s|sha256sum|base64|head -c 128) #openssl rand -hex >
 MODXDB_PASSWORD=$(date +%s+%m|sha256sum|base64|head -c 37) #openssl rand -hex 12

@@ -1,7 +1,56 @@
 #!/bin/sh
 # Author: Aaron K. Nall
+set -e
+if [[ ! $(sudo echo 0) ]]; then exit; fi
 
-apt-get update; apt-get upgrade -y; apt-get install -y fail2ban ufw;
+echo "Welcome to the Ubuntu/Debian LEMP Stack Installer."
+echo "This script will install a full LEMP Stack on this system."
+echo "The www-data group will become $USER's primay group."
+echo "This group assignment will allow $USER to manipulate web server files without interuptions to file access for the web server."
+echo "It is highly reccomended that this script be ran by a user account that will be responsible for maintaining, editing, and uploading files for the web server."
+echo "Do not run this script as the root system user!"
+echo "Would you like to continue?"
+
+confirmInstall(){
+        while [ "$confirm" = "" ]
+        do
+                echo -n "[y = continue | n = exit]:"
+                read confirm
+        done
+}
+
+confirmInstall
+while [[ "$validConfirm" = "" ]]
+do 
+        case "$confirm" in
+                y | Y)
+                        validConfirm="true"
+                        echo "You will be asked for input, please be patient."
+                        ;;
+
+                n | N)
+                        echo "Exiting Ubuntu/Debian LEMP Stack Installer."
+                        exit
+                        ;;
+
+                *)
+                        confirm=""
+                        echo "Invalid input detected."
+                        echo "Would you like to continue?"
+                        confirmInstall
+        esac
+done
+echo "ok"
+
+# Add current user to the www-data group as primary
+sudo usermod -a www-data $USER
+sudo usermod -g www-data $USER
+
+# Update apt
+sudo apt-get update
+sudo apt-get upgrade -y
+sudo apt-get install -y fail2ban ufw
+
 # SSH, HTTP and HTTPS
 sudo ufw default deny incoming
 sudo ufw default allow outgoing
@@ -27,7 +76,7 @@ do
         echo "  Reference https://en.wikipedia.org/wiki/List_of_tz_database_time_zones):"
         read selectedTimezone
 done
-	selectedTimezone="$selectedTimezone"
+
 echo "Selected Timezone: $selectedTimezone"
 
 #Add some PPAs to stay current
@@ -37,7 +86,9 @@ apt-add-repository ppa:ondrej/nginx-mainline -y
 apt-add-repository ppa:ondrej/php -y
 
 #Install base packages
-sudo apt-get update; sudo apt-get install -y build-essential curl nano wget lftp unzip bzip2 arj nomarch lzop htop openssl gcc git binutils libmcrypt4 libpcre3-dev make python3 python3-pip supervisor unattended-upgrades whois zsh imagemagick uuid-runtime net-tools
+sudo apt-get update
+sudo apt-get install -y build-essential curl nano wget lftp unzip bzip2 arj nomarch lzop htop openssl gcc git binutils
+sudo apt-get install -y libmcrypt4 libpcre3-dev make python3 python3-pip supervisor unattended-upgrades whois zsh imagemagick uuid-runtime net-tools
 
 #Set the timezone to $selectedTimezone
 ln -sf /usr/share/zoneinfo/$selectedTimezone /etc/localtime
@@ -46,29 +97,21 @@ sudo apt install nginx -y
 sudo systemctl enable nginx
 sudo systemctl start nginx
 
-sudo chown www-data:www-data /usr/share/nginx/html -R
-sudo chown www-data:www-data /var/www/ -R
-
 #Install PHP7.4 and common PHP packages
-echo "Installing PHP 7.4..."
+echo "Installing PHP..."
 
-sudo apt install -y php7.4 php7.4-fpm php7.4-mysql php-common php7.4-cli php7.4-common php7.4-json php7.4-opcache php7.4-readline php7.4-mbstring php7.4-xml php7.4-gd php7.4-curl
-
-
+sudo apt install -y php-fpm php-mysql php-json php-mbstring
 sudo systemctl enable php7.4-fpm
 sudo systemctl start php7.4-fpm
 
-
 #Install Composer
 curl -sS https://getcomposer.org/installer | php
-mv composer.phar /usr/local/bin/composer
+sudo mv composer.phar /usr/local/bin/composer
 
 #Install and configure Memcached
 apt-get install -y memcached
 sed -i 's/-l 0.0.0.0/-l 127.0.0.1/' /etc/memcached.conf
 systemctl restart memcached
-
-
 
 #Update PHP CLI configuration
 sed -i "s/error_reporting = .*/error_reporting = E_ALL/" /etc/php/7.4/cli/php.ini
@@ -79,7 +122,6 @@ sed -i "s/;date.timezone.*/date.timezone = $selectedTimezone/" /etc/php/7.4/cli/
 #Configure sessions directory permissions
 chmod 733 /var/lib/php/sessions
 chmod +t /var/lib/php/sessions
-
 
 #Tweak PHP-FPM settings
 sed -i "s/error_reporting = .*/error_reporting = E_ALL \& ~E_NOTICE \& ~E_STRICT \& ~E_DEPRECATED/" /etc/php/7.4/fpm/php.ini
@@ -134,46 +176,216 @@ EOF
 #curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
 #apt-get install -y nodejs
 
-
 #Install MySQL and set a strong root password
 
 echo "Installing MySQL Server..."
 sudo apt install -y mysql-server
 
 #Secure your MySQL installation
+MYSQL_ROOT_PASSWORD=$(cat /dev/urandom | tr -dc 'A-Za-z0-9!"#$%&'\''()*+,-./:;<=>?@[\]^_`{|}~ ' | fold -w 128 | head -n 1)
+MODX_DB_PASSWORD=$(cat /dev/urandom | tr -dc 'A-Za-z0-9!"#$%&()*+,-./:;<=>?@[\]^_`{|}~' | fold -w 64 | head -n 1)
+DB_OBF=$(cat /dev/urandom | tr -dc 'A-Za-z0-9' | fold -w 8 | head -n 1)
+DB_OBF2=$(cat /dev/urandom | tr -dc 'A-Za-z0-9' | fold -w 8 | head -n 1)
+DB_OBF3=$(cat /dev/urandom | tr -dc 'A-Za-z0-9' | fold -w 8 | head -n 1)
+MODX_DB="modx_db_$DB_OBF"
+MODX_DB_USER="modx_dbu_$DB_OBF"
+PMA_DB_USER="pma_$DB_OBF2"
+PMA_DB_PASS=$(cat /dev/urandom | tr -dc 'A-Za-z0-9!#$%&()*+,-./:;<=>?@[\]^_`{|}~' | fold -w 128 | head -n 1)
+DB_ADMIN="dba_$DB_OBF3"
+DB_ADMIN_PASS=$(cat /dev/urandom | tr -dc 'A-Za-z0-9!"#$%&()*+,-./:;<=>?@[\]^_`{|}~' | fold -w 128 | head -n 1)
 
-MYSQL_ROOT_PASSWORD=$(date +%s|sha256sum|base64|head -c 128) #openssl rand -hex >
-MODXDB_PASSWORD=$(date +%s+%m|sha256sum|base64|head -c 37) #openssl rand -hex 12
-DB_OBF=$(date +%s+%m|sha256sum|base64|head -c 8)
-MODXDB="modx_db_$DB_OBF"
-MODXDBUSER="modx_dbu_$DB_OBF"
+sudo mysql -uroot <<MYSQL_SCRIPT
+CREATE DATABASE $MODX_DB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER '$MODX_DB_USER'@'localhost' IDENTIFIED WITH mysql_native_password BY '$MODX_DB_PASSWORD';
+GRANT ALL PRIVILEGES ON $MODX_DB.* TO '$MODX_DB_USER'@'localhost' WITH GRANT OPTION;
+CREATE USER '$PMA_DB_USER'@'localhost' IDENTIFIED WITH mysql_native_password BY '$PMA_DB_PASS';
+GRANT ALL ON phpmyadmin.* TO '$PMA_DB_USER'@'localhost' WITH GRANT OPTION;
+CREATE USER '$DB_ADMIN'@'localhost' IDENTIFIED WITH mysql_native_password BY '$DB_ADMIN_PASS';
+GRANT ALL ON *.* TO '$DB_ADMIN'@'localhost' WITH GRANT OPTION;
+MYSQL_SCRIPT
 
+# The phpMyAdmin available in the Ubuntu OS repository for Ubuntu 20.04 may be old. So, we will download the latest version of phpMyAdmin from the official website.
+wget https://files.phpmyadmin.net/phpMyAdmin/5.0.4/phpMyAdmin-5.0.4-all-languages.tar.gz
+tar -zxvf phpMyAdmin-5.0.4-all-languages.tar.gz
+sudo mv phpMyAdmin-5.0.4-all-languages /usr/share/phpMyAdmin
+
+# Create blowfish key for config file
+BLOWFISH=$(cat /dev/urandom | tr -dc 'A-Za-z0-9!#$%&()*+,-./:;<=>?@[\]^_`{|}~' | fold -w 32 | head -n 1)
+
+# Write config file
+sudo echo
+"<?php
+/* vim: set expandtab sw=4 ts=4 sts=4: */
+/**
+ * phpMyAdmin sample configuration, you can use it as base for
+ * manual configuration. For easier setup you can use setup/
+ *
+ * All directives are explained in documentation in the doc/ folder
+ * or at <https://docs.phpmyadmin.net/>.
+ *
+ * @package PhpMyAdmin
+ */
+declare(strict_types=1);
+
+/**
+ * This is needed for cookie based authentication to encrypt password in
+ * cookie. Needs to be 32 chars long.
+ */
+"'$cfg'"['blowfish_secret'] = '$BLOWFISH'; /* YOU MUST FILL IN THIS FOR COOKIE AUTH! */
+
+/**
+ * Servers configuration
+ */
+"'$i'" = 0;
+
+/**
+ * First server
+ */
+"'$i'"++;
+/* Authentication type */
+"'$cfg'"['Servers']["'$i'"]['auth_type'] = 'cookie';
+/* Server parameters */
+"'$cfg'"['Servers']["'$i'"]['host'] = 'localhost';
+"'$cfg'"['Servers']["'$i'"]['compress'] = false;
+"'$cfg'"['Servers']["'$i'"]['AllowNoPassword'] = false;
+
+/**
+ * phpMyAdmin configuration storage settings.
+ */
+
+/* User used to manipulate with storage */
+// "'$cfg'"['Servers']["'$i'"]['controlhost'] = '';
+// "'$cfg'"['Servers']["'$i'"]['controlport'] = '';
+"'$cfg'"['Servers']["'$i'"]['controluser'] = '$PMA_DB_USER';
+"'$cfg'"['Servers']["'$i'"]['controlpass'] = '$PMA_DB_PASS';
+
+/* Storage database and tables */
+"'$cfg'"['Servers']["'$i'"]['pmadb'] = 'phpmyadmin';
+"'$cfg'"['Servers']["'$i'"]['bookmarktable'] = 'pma__bookmark';
+"'$cfg'"['Servers']["'$i'"]['relation'] = 'pma__relation';
+"'$cfg'"['Servers']["'$i'"]['table_info'] = 'pma__table_info';
+"'$cfg'"['Servers']["'$i'"]['table_coords'] = 'pma__table_coords';
+"'$cfg'"['Servers']["'$i'"]['pdf_pages'] = 'pma__pdf_pages';
+"'$cfg'"['Servers']["'$i'"]['column_info'] = 'pma__column_info';
+"'$cfg'"['Servers']["'$i'"]['history'] = 'pma__history';
+"'$cfg'"['Servers']["'$i'"]['table_uiprefs'] = 'pma__table_uiprefs';
+"'$cfg'"['Servers']["'$i'"]['tracking'] = 'pma__tracking';
+"'$cfg'"['Servers']["'$i'"]['userconfig'] = 'pma__userconfig';
+"'$cfg'"['Servers']["'$i'"]['recent'] = 'pma__recent';
+"'$cfg'"['Servers']["'$i'"]['favorite'] = 'pma__favorite';
+"'$cfg'"['Servers']["'$i'"]['users'] = 'pma__users';
+"'$cfg'"['Servers']["'$i'"]['usergroups'] = 'pma__usergroups';
+"'$cfg'"['Servers']["'$i'"]['navigationhiding'] = 'pma__navigationhiding';
+"'$cfg'"['Servers']["'$i'"]['savedsearches'] = 'pma__savedsearches';
+"'$cfg'"['Servers']["'$i'"]['central_columns'] = 'pma__central_columns';
+"'$cfg'"['Servers']["'$i'"]['designer_settings'] = 'pma__designer_settings';
+"'$cfg'"['Servers']["'$i'"]['export_templates'] = 'pma__export_templates';
+
+/**
+ * End of servers configuration
+ */
+
+/**
+ * Directories for saving/loading files from server
+ */
+"'$cfg'"['UploadDir'] = '';
+"'$cfg'"['SaveDir'] = '';
+
+/**
+ * Whether to display icons or text or both icons and text in table row
+ * action segment. Value can be either of 'icons', 'text' or 'both'.
+ * default = 'both'
+ */
+//"'$cfg'"['RowActionType'] = 'icons';
+
+/**
+ * Defines whether a user should be displayed a \"show all (records)\"
+ * button in browse mode or not.
+ * default = false
+ */
+//"'$cfg'"['ShowAll'] = true;
+
+/**
+ * Number of rows displayed when browsing a result set. If the result
+ * set contains more rows, \"Previous\" and \"Next\".
+ * Possible values: 25, 50, 100, 250, 500
+ * default = 25
+ */
+//"'$cfg'"['MaxRows'] = 50;
+
+/**
+ * Disallow editing of binary fields
+ * valid values are:
+ *   false    allow editing
+ *   'blob'   allow editing except for BLOB fields
+ *   'noblob' disallow editing except for BLOB fields
+ *   'all'    disallow editing
+ * default = 'blob'
+ */
+//"'$cfg'"['ProtectBinary'] = false;
+
+/**
+ * Default language to use, if not browser-defined or user-defined
+ * (you find all languages in the locale folder)
+ * uncomment the desired line:
+ * default = 'en'
+ */
+//"'$cfg'"['DefaultLang'] = 'en';
+//"'$cfg'"['DefaultLang'] = 'de';
+
+/**
+ * How many columns should be used for table display of a database?
+ * (a value larger than 1 results in some information being hidden)
+ * default = 1
+ */
+//"'$cfg'"['PropertiesNumColumns'] = 2;
+
+/**
+ * Set to true if you want DB-based query history.If false, this utilizes
+ * JS-routines to display query history (lost by window close)
+ *
+ * This requires configuration storage enabled, see above.
+ * default = false
+ */
+//"'$cfg'"['QueryHistoryDB'] = true;
+
+/**
+ * When using DB-based query history, how many entries should be kept?
+ * default = 25
+ */
+//"'$cfg'"['QueryHistoryMax'] = 100;
+
+/**
+ * Whether or not to query the user before sending the error report to
+ * the phpMyAdmin team when a JavaScript error occurs
+ *
+ * Available options
+ * ('ask' | 'always' | 'never')
+ * default = 'ask'
+ */
+//"'$cfg'"['SendErrorReports'] = 'always';
+
+/**
+ * You can find more configuration options in the documentation
+ * in the doc/ folder or at <https://docs.phpmyadmin.net/>.
+ */" > /usr/share/phpMyAdmin/config.inc.php
+
+# Import the create_tables.sql to create tables for phpMyAdmin
+sudo mysql < /usr/share/phpMyAdmin/sql/create_tables.sql -u root
+
+# Secure MySQL installation
 sudo mysql -uroot <<MYSQL_SCRIPT
 UPDATE mysql.user SET Password=PASSWORD('$MYSQL_ROOT_PASSWORD') WHERE User='root';
 DELETE FROM mysql.user WHERE User='';
 DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
 DROP DATABASE IF EXISTS test;
 DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
+INSTALL COMPONENT 'file://component_validate_password';
+SET GLOBAL validate_password_policy=STRONG;
 FLUSH PRIVILEGES;
 MYSQL_SCRIPT
 
-echo $MYSQL_ROOT_PASSWORD
-echo $MODX_PASSWORD
-
-#We will install phpMyAdmin using Composer as Ubuntu packages are no longer being maintained.
-sudo mkdir -pv /var/www/
-cd /var/www
-sudo composer create-project phpmyadmin/phpmyadmin
-sudo cp /var/www/phpmyadmin/config.sample.inc.php /var/www/phpmyadmin/config.inc.php
-sudo mysql -u root -p $MYSQL_ROOT_PASSWORD < /var/www/phpmyadmin/sql/create_tables.sql
-sudo sed -i "s/\$cfg\['blowfish_secret'\] = '';.*/\$cfg\['blowfish_secret'\] = '$(uuidgen)';/" /var/www/phpmyadmin/config.inc.php
-sudo mkdir -pv /var/www/phpmyadmin/tmp; sudo chown www-data:www-data /var/www/phpmyadmin/tmp;
-
-#Symlink phpMyAdmin, create logs dir and set permissions and ownership on /var/www
-sudo ln -s /var/www/phpmyadmin/ /var/www/html/phpmyadmin; sudo mkdir -pv /var/www/logs; sudo chown -R www-data:www-data /var/www; sudo chmod -R g+rw /var/www;
-
 #Create Nginx virtual host config
-
 newdomain=""
 domain=$1
 rootPath=$2
@@ -182,60 +394,43 @@ sitesAvailable='/etc/nginx/sites-available/'
 serverRoot='/var/www/'
 domainRegex="^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$"
 
-while [ "$domain" = "" ]
+acquireDomain(){
+        while [ "$domain" = "" ]
+        do
+                echo "Enter the host domain:"
+                read domain
+        done
+
+        until [[ $domain =~ $domainRegex ]]
+        do
+                echo "Enter a valid domain:"
+                read domain
+        done
+
+        echo "Enter sub domain (optional):"
+                read subdomain
+
+        if [ -z "$subdomain" ]
+        then
+                newdomain="$domain"
+
+        else
+                newdomain="${subdomain}.${domain}"
+        fi
+}
+
+acquireDomain
+
+while [ -e $newdomain ]
 do
-        echo "Please provide your PRIMARY domain (sub domain not required):"
-        read domain
+        echo "This domain already exists, please choose a different domain."
+        acquireDomain
 done
 
-until [[ $domain =~ $domainRegex ]]
-do
-        echo "Enter valid domain:"
-        read domain
-done
-
-echo "Enter sub domain:"
-        read subdomain
-
-if [ -z "$subdomain" ]
-then
-		newdomain="$domain"
-echo $newdomain
-else
-	
-		newdomain="${subdomain}.${domain}"
-
-echo $newdomain
-fi
-
-
-
-if [ -e $newdomain ]; then
-        echo "This domain already exists.\nPlease Try Another one"
-        exit;
-fi
-
+echo "Using $newdomain for this LEMP installation"
 
 if [ "$rootPath" = "" ]; then
         rootPath=$serverRoot$newdomain
-fi
-
-if ! [ -d $rootPath ]; then
-        sudo mkdir -pv $rootPath
-        sudo chmod 777 $rootPath
-        if ! echo "<?php
-// Show all information, defaults to INFO_ALL
-phpinfo();
-// Show just the module information.
-// phpinfo(8) yields identical results.
-phpinfo(INFO_MODULES);
-?>" > $rootPath/index.php
-        then
-                echo "ERROR: Not able to write in file $rootPath/index.php. Please check permissions."
-                exit;
-        else
-                echo "Added content to $rootPath/index.php"
-        fi
 fi
 
 if ! [ -d $sitesEnable ]; then
@@ -248,9 +443,8 @@ if ! [ -d $sitesAvailable ]; then
         sudo chmod 777 $sitesAvailable
 fi
 
-configName=$newdomain
-
-if ! echo "server {
+sudo echo
+"server {
     server_name $newdomain www.$newdomain;
     root /var/www/$newdomain;
     index index.html index.htm index.php;
@@ -269,14 +463,44 @@ if ! echo "server {
         deny all;
     }
 }" > $sitesAvailable$newdomain
-then
-        echo "There is an ERROR create $configName file"
-        exit;
-else
-        echo "New Virtual Host Created"
-fi
 
-#Symlink
+PMAOBF=$(cat /dev/urandom | tr -dc 'A-Za-z0-9' | fold -w 8 | head -n 1)
+PMA_HOST="pma_$PMAOBF.$newdomain"
+
+sudo echo 
+"server {
+   listen 80;
+   server_name $PMA_HOST;
+   root /usr/share/phpMyAdmin;
+
+   location / {
+      index index.php;
+   }
+
+## Images and static content is treated different
+   location ~* ^.+.(jpg|jpeg|gif|css|png|js|ico|xml)$ {
+      access_log off;
+      expires 30d;
+   }
+
+   location ~ /\.ht {
+      deny all;
+   }
+
+   location ~ /(libraries|setup/frames|setup/libs) {
+      deny all;
+      return 404;
+   }
+
+   location ~ \.php$ {
+      include /etc/nginx/fastcgi_params;
+      fastcgi_pass unix:/run/php/php7.4-fpm.sock;
+      fastcgi_index index.php;
+      fastcgi_param SCRIPT_FILENAME /usr/share/phpMyAdmin"'$fastcgi_script_name'";
+   }
+}" > /etc/nginx/conf.d/phpMyAdmin.conf
+
+# Symlink Server Block
 sudo ln -s /etc/nginx/sites-available/$newdomain /etc/nginx/sites-enabled/
 
 sudo rm /etc/nginx/sites-enabled/default
@@ -284,12 +508,10 @@ sudo rm /etc/nginx/sites-enabled/default
 #Install Letsencrypt Certbot
 sudo apt install -y python3-certbot-nginx
 
-#Restart PHP-FPM and Nginx
-sudo systemctl restart php7.4-fpm; sudo systemctl restart nginx;
-
-echo 'LEMP Stack has been Installed
-Now downloding latest MODX'
-sleep 3
+echo "The LEMP Stack has been Installed"
+echo ""
+sleep 1
+echo "Now downloding latest MODX..."
 
 cd ~
 wget -O modx.zip https://modx.com/download/direct?id=modx-2.8.1-pl-advanced.zip&0=abs
@@ -299,33 +521,65 @@ mv modx-2.8.1-pl modx
 MODXCOREPATH = /home/$USER/modx/core
 
 sudo chown -R www-data:www-data /home/$USER/modx/core
+sudo mkdir /usr/share/phpMyAdmin/tmp
+sudo chmod 777 /usr/share/phpMyAdmin/tmp
+sudo ln -sf /usr/share/phpmyadmin /var/www/phpMyAdmin
+sudo chown -R www-data:www-data /usr/share/phpMyAdmin
+sudo chown -R www-data:www-data /var/www/phpMyAdmin
 
-echo "Downloaded MODX 2.8.1
-Creating new database for $newdomain"
+#Restart PHP-FPM and Nginx
+sudo systemctl restart nginx
+sudo systemctl restart php7.4-fpm
+
+echo "MODX 2.8.1 download complete"
+echo ""
+sleep 1
+echo "Creating database for $newdomain..."
 sleep 2
 
-mysql -uroot <<MYSQL_SCRIPT
-CREATE DATABASE $MODXDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER '$MODXDBUSER'@'localhost' IDENTIFIED BY '$MODXDB_PASSWORD';
-GRANT ALL PRIVILEGES ON $MODXDB.* TO '$MODXDBUSER'@'localhost' WITH GRANT OPTION;
-FLUSH PRIVILEGES;
-MYSQL_SCRIPT
-
-#copy the password to the root directory
-
-echo "MySQL Root Password: $MYSQL_ROOT_PASSWORD" > ~/mysql_info_$newdomain.txt
+echo "MySQL root Password: $MYSQL_ROOT_PASSWORD" > ~/mysql_info_$newdomain.txt
 echo "$newdomain Info
 ------------------------
-MODX DB Name: $MODXDB
-MODX DB Username: $MODXDBUSER
-MODX DB Password: $MODXDB_PASSWORD" > ~/modx_db_info_$newdomain.txt
+MODX DB Name: $MODX_DB
+MODX DB Username: $MODX_DB_USER
+MODX DB Password: $MODX_DB_PASSWORD" > ~/modx_db_info_$newdomain.txt
 
+echo "Open your browser and navigate to $newdomain/setup/"
+sleep 1
+echo ""
+echo "Use the information below to complete the MODX setup process..."
+sleep 1
+echo "$newdomain Info"
+echo "------------------------"
+sleep 1
+echo "MODX DB Name: $MODX_DB"
+sleep 1
+echo "MODX DB Username: $MODX_DB_USER"
+sleep 1
+echo "MODX DB Password: $MODX_DB_PASSWORD"
+sleep 1
+echo "MODX Core Path: $MODXCOREPATH";
+sleep 1
+echo "MODX Database Connection Details saved to ~/modx_db_info_$newdomain.txt"
+sleep 1
+echo "Your MySQL root Password is: $MYSQL_ROOT_PASSWORD"
+echo "Save this in a safe place or download the following file..."
+echo "~/mysql_info_$newdomain.txt"
+echo ""
+sleep 1
+echo "Access PhpMyAdmin at: $PMA_HOST"
+echo "You will need to create a DNS record for this subdomain."
+echo "PhpMyAdmin can also be accessed at: $newdomain/."
+echo ""
+sleep 1
+echo "Database Admin Info"
+echo "------------------------"
+echo "Username: $DB_ADMIN"
+echo "Password: $DB_ADMIN_PASS"
+echo ""
+echo "Use these credentials to administer the database through PhpMyAdmin."
 
-echo "MODX Database Connection Details saved to ~/mysql_info_$newdomain.txt \n"
-echo "MODX Core Path: $MODXCOREPATH \n\n";
-echo "MODX Database Connection Details saved to ~/modx_db_info_$newdomain.txt \n"
-
-#Set up logrotate for our Nginx logs
+#Setup logrotate for our Nginx logs
 #Execute the following to create log rotation config for Nginx - this gives you 10 days of logs, rotated daily
 
 cat > /etc/logrotate.d/vhost << EOF
@@ -342,7 +596,8 @@ cat > /etc/logrotate.d/vhost << EOF
 }
 EOF
 
-sudo chown www-data:www-data /var/log/nginx/*
+sudo chown -R www-data:www-data /var/log/nginx/*
+sudo chown -R www-data:www-data /var/www
 
 #Setup unattended security upgrades
 cat > /etc/apt/apt.conf.d/10periodic << EOF

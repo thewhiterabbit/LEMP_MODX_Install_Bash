@@ -77,7 +77,11 @@ secure_user(){
 }
 
 secure_ssh(){
-    sudo rm /etc/ssh/sshd_config
+    CF="/etc/ssh/sshd_config"
+    if test -f "$CF"; then
+        sudo rm $CF
+    fi
+
     sudo cp $HD/LEMP_MODX_Install_Bash/sshd_conf /etc/ssh/sshd_config
 
     echo "/etc/ssh/sshd_config was changed to reflect $HD/LEMP_MODX_Install_Bash/sshd_conf"

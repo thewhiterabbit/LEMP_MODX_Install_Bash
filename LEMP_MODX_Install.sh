@@ -11,7 +11,7 @@ echo "Do not run this script as the root system user!"
 echo "Would you like to continue?"
 
 confirmInstall(){
-        while [ "$confirm" = "" ]
+        while [[ "$confirm" = "" ]]
         do
                 echo -n "[y = continue | n = exit]:"
                 read confirm
@@ -42,15 +42,20 @@ done
 echo "ok"
 
 # Add current user to the www-data group as primary
-sudo usermod -a www-data $USER
+sudo usermod -aG www-data $USER
+wait
 sudo usermod -g www-data $USER
+wait
 
 # Update apt
 sudo apt-get update
+wait
 sudo apt-get upgrade -y
+wait
 
 # Instal firewall & security basics
 sudo apt-get install -y fail2ban ufw
+wait
 
 while [ "$selectedTimezone" = "" ]
 do
@@ -62,72 +67,101 @@ done
 echo "Selected Timezone: $selectedTimezone"
 
 #Install base packages
-sudo apt-get update
-sudo apt-get upgrade
 sudo apt-get install -y build-essential curl nano wget lftp unzip bzip2 arj nomarch lzop htop openssl gcc git binutils
+wait
 sudo apt-get install -y libmcrypt4 libpcre3-dev make python3 python3-pip supervisor unattended-upgrades whois zsh imagemagick uuid-runtime net-tools
+wait
 
 #Set the timezone to $selectedTimezone
-ln -sf /usr/share/zoneinfo/$selectedTimezone /etc/localtime
+sudo ln -sf /usr/share/zoneinfo/$selectedTimezone /etc/localtime
+wait
 
 sudo apt install nginx -y
+wait
 sudo systemctl enable nginx
+wait
 sudo systemctl start nginx
+wait
 
 #Install PHP7.4 and common PHP packages
 echo "Installing PHP..."
 
 sudo apt install -y php-fpm php-mysql php-json php-mbstring
+wait
 sudo systemctl enable php7.4-fpm
+wait
 sudo systemctl start php7.4-fpm
-
-#Install Composer
-curl -sS https://getcomposer.org/installer | php
-sudo mv composer.phar /usr/local/bin/composer
+wait
 
 #Install and configure Memcached
-apt-get install -y memcached
-sed -i 's/-l 0.0.0.0/-l 127.0.0.1/' /etc/memcached.conf
-systemctl restart memcached
+sudo apt-get install -y memcached
+wait
+sudo sed -i 's/-l 0.0.0.0/-l 127.0.0.1/' /etc/memcached.conf
+wait
+sudo systemctl restart memcached
+wait
 
 #Update PHP CLI configuration
-sed -i "s/error_reporting = .*/error_reporting = E_ALL/" /etc/php/7.4/cli/php.ini
-sed -i "s/display_errors = .*/display_errors = On/" /etc/php/7.4/cli/php.ini
-sed -i "s/memory_limit = .*/memory_limit = 512M/" /etc/php/7.4/cli/php.ini
-sed -i "s/;date.timezone.*/date.timezone = $selectedTimezone/" /etc/php/7.4/cli/php.ini
+sudo sed -i "s/error_reporting = .*/error_reporting = E_ALL/" /etc/php/7.4/cli/php.ini
+wait
+sudo sed -i "s/display_errors = .*/display_errors = On/" /etc/php/7.4/cli/php.ini
+wait
+sudo sed -i "s/memory_limit = .*/memory_limit = 512M/" /etc/php/7.4/cli/php.ini
+wait
+sudo sed -i "s/;date.timezone.*/date.timezone = $selectedTimezone/" /etc/php/7.4/cli/php.ini
+wait
 
 #Configure sessions directory permissions
-chmod 733 /var/lib/php/sessions
-chmod +t /var/lib/php/sessions
+sudo chmod 733 /var/lib/php/sessions
+wait
+sudo chmod +t /var/lib/php/sessions
+wait
 
 #Tweak PHP-FPM settings
-sed -i "s/error_reporting = .*/error_reporting = E_ALL \& ~E_NOTICE \& ~E_STRICT \& ~E_DEPRECATED/" /etc/php/7.4/fpm/php.ini
-sed -i "s/display_errors = .*/display_errors = Off/" /etc/php/7.4/fpm/php.ini
-sed -i "s/memory_limit = .*/memory_limit = 512M/" /etc/php/7.4/fpm/php.ini
-sed -i "s/upload_max_filesize = .*/upload_max_filesize = 256M/" /etc/php/7.4/fpm/php.ini
-sed -i "s/post_max_size = .*/post_max_size = 256M/" /etc/php/7.4/fpm/php.ini
-sed -i "s/;date.timezone.*/date.timezone = $selectedTimezone/" /etc/php/7.4/fpm/php.ini
+sudo sed -i "s/error_reporting = .*/error_reporting = E_ALL \& ~E_NOTICE \& ~E_STRICT \& ~E_DEPRECATED/" /etc/php/7.4/fpm/php.ini
+wait
+sudo sed -i "s/display_errors = .*/display_errors = Off/" /etc/php/7.4/fpm/php.ini
+wait
+sudo sed -i "s/memory_limit = .*/memory_limit = 512M/" /etc/php/7.4/fpm/php.ini
+wait
+sudo sed -i "s/upload_max_filesize = .*/upload_max_filesize = 256M/" /etc/php/7.4/fpm/php.ini
+wait
+sudo sed -i "s/post_max_size = .*/post_max_size = 256M/" /etc/php/7.4/fpm/php.ini
+wait
+sudo sed -i "s/;date.timezone.*/date.timezone = $selectedTimezone/" /etc/php/7.4/fpm/php.ini
+wait
 
 #Tune PHP-FPM pool settings
 
-sed -i "s/;listen\.mode =.*/listen.mode = 0666/" /etc/php/7.4/fpm/pool.d/www.conf
-sed -i "s/;request_terminate_timeout =.*/request_terminate_timeout = 60/" /etc/php/7.4/fpm/pool.d/www.conf
-sed -i "s/pm\.max_children =.*/pm.max_children = 70/" /etc/php/7.4/fpm/pool.d/www.conf
-sed -i "s/pm\.start_servers =.*/pm.start_servers = 20/" /etc/php/7.4/fpm/pool.d/www.conf
-sed -i "s/pm\.min_spare_servers =.*/pm.min_spare_servers = 20/" /etc/php/7.4/fpm/pool.d/www.conf
-sed -i "s/pm\.max_spare_servers =.*/pm.max_spare_servers = 35/" /etc/php/7.4/fpm/pool.d/www.conf
-sed -i "s/;pm\.max_requests =.*/pm.max_requests = 500/" /etc/php/7.4/fpm/pool.d/www.conf
+sudo sed -i "s/;listen\.mode =.*/listen.mode = 0666/" /etc/php/7.4/fpm/pool.d/www.conf
+wait
+sudo sed -i "s/;request_terminate_timeout =.*/request_terminate_timeout = 60/" /etc/php/7.4/fpm/pool.d/www.conf
+wait
+sudo sed -i "s/pm\.max_children =.*/pm.max_children = 70/" /etc/php/7.4/fpm/pool.d/www.conf
+wait
+sudo sed -i "s/pm\.start_servers =.*/pm.start_servers = 20/" /etc/php/7.4/fpm/pool.d/www.conf
+wait
+sudo sed -i "s/pm\.min_spare_servers =.*/pm.min_spare_servers = 20/" /etc/php/7.4/fpm/pool.d/www.conf
+wait
+sudo sed -i "s/pm\.max_spare_servers =.*/pm.max_spare_servers = 35/" /etc/php/7.4/fpm/pool.d/www.conf
+wait
+sudo sed -i "s/;pm\.max_requests =.*/pm.max_requests = 500/" /etc/php/7.4/fpm/pool.d/www.conf
+wait
 
 #Tweak Nginx settings
 
-sed -i "s/worker_processes.*/worker_processes auto;/" /etc/nginx/nginx.conf
-sed -i "s/# multi_accept.*/multi_accept on;/" /etc/nginx/nginx.conf
-sed -i "s/# server_names_hash_bucket_size.*/server_names_hash_bucket_size 128;/" /etc/nginx/nginx.conf
-sed -i "s/# server_tokens off/server_tokens off/" /etc/nginx/nginx.conf
+sudo sed -i "s/worker_processes.*/worker_processes auto;/" /etc/nginx/nginx.conf
+wait
+sudo sed -i "s/# multi_accept.*/multi_accept on;/" /etc/nginx/nginx.conf
+wait
+sudo sed -i "s/# server_names_hash_bucket_size.*/server_names_hash_bucket_size 128;/" /etc/nginx/nginx.conf
+wait
+sudo sed -i "s/# server_tokens off/server_tokens off/" /etc/nginx/nginx.conf
+wait
 
 #Configure Gzip for Nginx
 
-cat > /etc/nginx/conf.d/gzip.conf << EOF
+sudo cat > /etc/nginx/conf.d/gzip.conf << EOF
 gzip_comp_level 5;
 gzip_min_length 256;
 gzip_proxied any;
@@ -148,6 +182,7 @@ image/x-icon
 text/css
 text/plain;
 EOF
+wait
 
 #Install latest NodeJS LTS
 #curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
@@ -157,6 +192,7 @@ EOF
 
 echo "Installing MySQL Server..."
 sudo apt install -y mysql-server
+wait
 
 #Secure your MySQL installation
 MYSQL_ROOT_PASSWORD=$(cat /dev/urandom | tr -dc 'A-Za-z0-9!"#$%&'\''()*+,-./:;<=>?@[\]^_`{|}~ ' | fold -w 128 | head -n 1)
@@ -180,11 +216,15 @@ GRANT ALL ON phpmyadmin.* TO '$PMA_DB_USER'@'localhost' WITH GRANT OPTION;
 CREATE USER '$DB_ADMIN'@'localhost' IDENTIFIED WITH mysql_native_password BY '$DB_ADMIN_PASS';
 GRANT ALL ON *.* TO '$DB_ADMIN'@'localhost' WITH GRANT OPTION;
 MYSQL_SCRIPT
+wait
 
 # The phpMyAdmin available in the Ubuntu OS repository for Ubuntu 20.04 may be old. So, we will download the latest version of phpMyAdmin from the official website.
 wget https://files.phpmyadmin.net/phpMyAdmin/5.0.4/phpMyAdmin-5.0.4-all-languages.tar.gz
+wait
 tar -zxvf phpMyAdmin-5.0.4-all-languages.tar.gz
+wait
 sudo mv phpMyAdmin-5.0.4-all-languages /usr/share/phpMyAdmin
+wait
 
 # Create blowfish key for config file
 BLOWFISH=$(cat /dev/urandom | tr -dc 'A-Za-z0-9!#$%&()*+,-./:;<=>?@[\]^_`{|}~' | fold -w 32 | head -n 1)
@@ -346,9 +386,11 @@ declare(strict_types=1);
  * You can find more configuration options in the documentation
  * in the doc/ folder or at <https://docs.phpmyadmin.net/>.
  */" > /usr/share/phpMyAdmin/config.inc.php
+wait
 
 # Import the create_tables.sql to create tables for phpMyAdmin
 sudo mysql < /usr/share/phpMyAdmin/sql/create_tables.sql -u root
+wait
 
 # Secure MySQL installation
 sudo mysql -uroot <<MYSQL_SCRIPT
@@ -361,6 +403,7 @@ INSTALL COMPONENT 'file://component_validate_password';
 SET GLOBAL validate_password_policy=STRONG;
 FLUSH PRIVILEGES;
 MYSQL_SCRIPT
+wait
 
 #Create Nginx virtual host config
 newdomain=""
@@ -409,9 +452,13 @@ acquireDomain
 
 # SSH, HTTP and HTTPS
 sudo ufw default deny incoming
+wait
 sudo ufw default allow outgoing
+wait
 sudo ufw allow 'OpenSSH'
+wait
 sudo ufw allow from $OWNER_IP
+wait
 
 # Skip the following 3 lines if you do not plan on using unsecure FTP
 #ufw allow 21
@@ -420,10 +467,13 @@ sudo ufw allow from $OWNER_IP
 
 # Show the new ufw status
 UFWS=$(ufw status)
+wait
 echo "$UFWS"
+sleep 5
 
 # Activate UFW
 sudo ufw --force enable
+wait
 
 while [ -e $newdomain ]
 do
@@ -432,6 +482,7 @@ do
 done
 
 echo "Using $newdomain for this LEMP installation"
+sleep 5
 
 if [ "$rootPath" = "" ]; then
         rootPath=$serverRoot$newdomain
@@ -439,12 +490,16 @@ fi
 
 if ! [ -d $sitesEnable ]; then
         sudo mkdir -pv $sitesEnable
+        wait
         sudo chmod 777 $sitesEnable
+        wait
 fi
 
 if ! [ -d $sitesAvailable ]; then
         sudo mkdir -pv $sitesAvailable
+        wait
         sudo chmod 777 $sitesAvailable
+        wait
 fi
 
 sudo echo
@@ -467,6 +522,7 @@ sudo echo
         deny all;
     }
 }" > $sitesAvailable$newdomain
+wait
 
 PMAOBF=$(cat /dev/urandom | tr -dc 'A-Za-z0-9' | fold -w 8 | head -n 1)
 PMA_HOST="pma_$PMAOBF.$newdomain"
@@ -503,41 +559,91 @@ sudo echo
       fastcgi_param SCRIPT_FILENAME /usr/share/phpMyAdmin"'$fastcgi_script_name'";
    }
 }" > /etc/nginx/conf.d/phpMyAdmin.conf
+wait
 
 # Symlink Server Block
 sudo ln -s /etc/nginx/sites-available/$newdomain /etc/nginx/sites-enabled/
+wait
 
 sudo rm /etc/nginx/sites-enabled/default
+wait
 
 #Install Letsencrypt Certbot
 sudo apt install -y python3-certbot-nginx
+wait
 
 echo "The LEMP Stack has been Installed"
 echo ""
-sleep 1
+sleep 5
 echo "Now downloding latest MODX..."
 
 cd ~
 wget -O modx.zip https://modx.com/download/direct?id=modx-2.8.1-pl-advanced.zip&0=abs
+wait
 unzip modx.zip
+wait
+mkdir /var/www/$newdomain
+wait
 mv modx-2.8.1-pl/setup /var/www/$newdomain/
+wait
 mv modx-2.8.1-pl modx
+wait
 MODXCOREPATH = /home/$USER/modx/core
 
 sudo chown -R www-data:www-data /home/$USER/modx/core
+wait
 sudo mkdir /usr/share/phpMyAdmin/tmp
+wait
 sudo chmod 777 /usr/share/phpMyAdmin/tmp
+wait
 sudo ln -sf /usr/share/phpmyadmin /var/www/phpMyAdmin
+wait
 sudo chown -R www-data:www-data /usr/share/phpMyAdmin
+wait
 sudo chown -R www-data:www-data /var/www/phpMyAdmin
+wait
 
 #Restart PHP-FPM and Nginx
 sudo systemctl restart nginx
+wait
 sudo systemctl restart php7.4-fpm
+wait
+
+#Setup logrotate for our Nginx logs
+#Execute the following to create log rotation config for Nginx - this gives you 10 days of logs, rotated daily
+
+sudo cat > /etc/logrotate.d/vhost << EOF
+/var/www/logs/*.log {
+ rotate 10
+ daily
+ compress
+ delaycompress
+ sharedscripts
+ 
+ postrotate
+ systemctl reload nginx > /dev/null
+ endscript
+}
+EOF
+wait
+
+sudo chown -R www-data:www-data /var/log/nginx/*
+wait
+sudo chown -R www-data:www-data /var/www
+wait
+
+#Setup unattended security upgrades
+cat > /etc/apt/apt.conf.d/10periodic << EOF
+APT::Periodic::Update-Package-Lists "1";
+APT::Periodic::Download-Upgradeable-Packages "1";
+APT::Periodic::AutocleanInterval "7";
+APT::Periodic::Unattended-Upgrade "1";
+EOF
+wait
 
 echo "MODX 2.8.1 download complete"
 echo ""
-sleep 1
+sleep 5
 echo "Creating database for $newdomain..."
 sleep 2
 
@@ -582,31 +688,3 @@ echo "Username: $DB_ADMIN"
 echo "Password: $DB_ADMIN_PASS"
 echo ""
 echo "Use these credentials to administer the database through PhpMyAdmin."
-
-#Setup logrotate for our Nginx logs
-#Execute the following to create log rotation config for Nginx - this gives you 10 days of logs, rotated daily
-
-cat > /etc/logrotate.d/vhost << EOF
-/var/www/logs/*.log {
- rotate 10
- daily
- compress
- delaycompress
- sharedscripts
- 
- postrotate
- systemctl reload nginx > /dev/null
- endscript
-}
-EOF
-
-sudo chown -R www-data:www-data /var/log/nginx/*
-sudo chown -R www-data:www-data /var/www
-
-#Setup unattended security upgrades
-cat > /etc/apt/apt.conf.d/10periodic << EOF
-APT::Periodic::Update-Package-Lists "1";
-APT::Periodic::Download-Upgradeable-Packages "1";
-APT::Periodic::AutocleanInterval "7";
-APT::Periodic::Unattended-Upgrade "1";
-EOF

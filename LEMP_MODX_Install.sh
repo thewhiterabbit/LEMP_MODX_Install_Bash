@@ -1,6 +1,5 @@
 #!/bin/sh
 # Author: Aaron K. Nall
-set -e
 if [[ ! $(sudo echo 0) ]]; then exit; fi
 
 echo "Welcome to the Ubuntu/Debian LEMP Stack Installer."

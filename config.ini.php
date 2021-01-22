@@ -40,8 +40,8 @@ $cfg['Servers'][$i]['AllowNoPassword'] = false;
 /* User used to manipulate with storage */
 // $cfg['Servers'][$i]['controlhost'] = '';
 // $cfg['Servers'][$i]['controlport'] = '';
-$cfg['Servers'][$i]['controluser'] = 'pma_vy5eXce67';
-$cfg['Servers'][$i]['controlpass'] = '9SDcWvAx7*Uz9JQ^c^rC$8BAvL53!R?HuR^';
+$cfg['Servers'][$i]['controluser'] = '';
+$cfg['Servers'][$i]['controlpass'] = '';
 
 /* Storage database and tables */
 $cfg['Servers'][$i]['pmadb'] = 'phpmyadmin';

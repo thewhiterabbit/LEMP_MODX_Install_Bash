@@ -6,13 +6,13 @@ secure_user(){
     while [[ "$KEY" = "" ]]
     do
         echo -n "Paste the SSH Private Key for $USER:"
-        read KEY
+        read -s KEY
     done
 
     mkdir -p ~/.ssh
     sudo echo "$KEY">| ~/.ssh/authorized_keys
 
-    echo "Private key was added to ~.ssh/authorized_keys"
+    echo "Private key was added to ~./ssh/authorized_keys"
     echo ""
 }
 

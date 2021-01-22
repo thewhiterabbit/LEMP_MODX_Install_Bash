@@ -3,7 +3,7 @@
 set -e
 
 # Get the username of the actual user
-$UN="$(who am i | awk '{print $1}')"
+UN="$(who am i | awk '{print $1}')"
 
 while [ -n "$1" ]; do # while loop starts
 	case "$1" in

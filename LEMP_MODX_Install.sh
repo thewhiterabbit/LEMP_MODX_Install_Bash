@@ -148,22 +148,22 @@ sudo sed -i "s/;listen\.mode =.*/listen.mode = 0666/" /etc/php/7.4/fpm/pool.d/ww
 echo "Modified listen\.mode /etc/php/7.4/fpm/pool.d/www.conf"
 wait
 sudo sed -i "s/;request_terminate_timeout =.*/request_terminate_timeout = 60/" /etc/php/7.4/fpm/pool.d/www.conf
-"Modified request_terminate_timeout /etc/php/7.4/fpm/pool.d/www.conf"
+echo "Modified request_terminate_timeout /etc/php/7.4/fpm/pool.d/www.conf"
 wait
 sudo sed -i "s/pm\.max_children =.*/pm.max_children = 70/" /etc/php/7.4/fpm/pool.d/www.conf
-"Modified max_children /etc/php/7.4/fpm/pool.d/www.conf"
+echo "Modified max_children /etc/php/7.4/fpm/pool.d/www.conf"
 wait
 sudo sed -i "s/pm\.start_servers =.*/pm.start_servers = 20/" /etc/php/7.4/fpm/pool.d/www.conf
-"Modified start_servers /etc/php/7.4/fpm/pool.d/www.conf"
+echo "Modified start_servers /etc/php/7.4/fpm/pool.d/www.conf"
 wait
 sudo sed -i "s/pm\.min_spare_servers =.*/pm.min_spare_servers = 20/" /etc/php/7.4/fpm/pool.d/www.conf
-"Modified min_spare_servers /etc/php/7.4/fpm/pool.d/www.conf"
+echo "Modified min_spare_servers /etc/php/7.4/fpm/pool.d/www.conf"
 wait
 sudo sed -i "s/pm\.max_spare_servers =.*/pm.max_spare_servers = 35/" /etc/php/7.4/fpm/pool.d/www.conf
-"Modified max_spare_servers /etc/php/7.4/fpm/pool.d/www.conf"
+echo "Modified max_spare_servers /etc/php/7.4/fpm/pool.d/www.conf"
 wait
 sudo sed -i "s/;pm\.max_requests =.*/pm.max_requests = 500/" /etc/php/7.4/fpm/pool.d/www.conf
-"Modified max_requests /etc/php/7.4/fpm/pool.d/www.conf"
+echo "Modified max_requests /etc/php/7.4/fpm/pool.d/www.conf"
 wait
 
 #Tweak Nginx settings

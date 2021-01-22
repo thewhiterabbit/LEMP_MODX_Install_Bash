@@ -101,13 +101,13 @@ if [[ "$UN" != "root" ]]; then
         echo ""
         exit;
     fi
-    if [[ "$SS" != "no" ]]
+    if [[ "$SS" != "no" ]]; then
         secure_ssh
     fi
     secure_user
     sudo service ssh reload
 else
-    if [[ "$SS" != "no" ]]
+    if [[ "$SS" != "no" ]]; then
         secure_ssh
     fi
     secure_user

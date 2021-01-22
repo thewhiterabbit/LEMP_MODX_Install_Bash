@@ -5,6 +5,18 @@ set -e
 # Get the username of the actual user
 UN="$(who am i | awk '{print $1}')"
 
+# Set the home directory in a variable
+if [[ "$UN" != "root" ]] || [[ "$USERNAME" != "" ]]; then
+    if [[ "$USERNAME" != "" ]]; then
+        HD="/home/$USERNAME"
+    else
+        HD="/home/$UN"
+    fi
+else
+    HD="/root"
+fi
+
+# Check for options
 while [ -n "$1" ]; do # while loop starts
 	case "$1" in
                 -u)
@@ -37,16 +49,6 @@ while [ -n "$1" ]; do # while loop starts
 done
 
 secure_user(){
-    # Set the home directory in a variable
-    if [[ "$UN" != "root" ]] || [[ "$USERNAME" != "" ]]; then
-        if [[ "$USERNAME" != "" ]]; then
-            HD="/home/$USERNAME"
-        else
-            HD="/home/$UN"
-        fi
-    else
-        HD="/root"
-    fi
     sudo mkdir -p $HD/.ssh
     if [[ "$FILE" = "" ]] && [[ "$FILENAME" = "" ]]; then
         while [[ "$KEY" = "" ]]

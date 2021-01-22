@@ -42,16 +42,18 @@ do
 done
 
 # Add current user to the www-data group as primary
-$UN="$(who am i | awk '{print $1}')"
+UN="$(who am i | awk '{print $1}')"
 sudo usermod -aG www-data $UN
 wait
 sudo usermod -g www-data $UN
 wait
+
 # Update apt
 sudo apt-get update
 wait
 sudo apt-get upgrade -y
 wait
+
 # Instal firewall & security basics
 sudo apt-get install -y fail2ban ufw
 wait

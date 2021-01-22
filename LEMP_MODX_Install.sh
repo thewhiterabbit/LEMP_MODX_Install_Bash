@@ -195,7 +195,7 @@ sudo apt install -y mysql-server
 wait
 
 #Secure your MySQL installation
-MYSQL_ROOT_PASSWORD=$(cat /dev/urandom | tr -dc 'A-Za-z0-9!"#$%&'\''()*+,-./:;<=>?@[\]^_`{|}~ ' | fold -w 128 | head -n 1)
+MYSQL_ROOT_PASSWORD=$(cat /dev/urandom | tr -dc 'A-Za-z0-9!"#$%&()*+,-./:;<=>?@[\]^_`{|}~' | fold -w 128 | head -n 1)
 MODX_DB_PASSWORD=$(cat /dev/urandom | tr -dc 'A-Za-z0-9!"#$%&()*+,-./:;<=>?@[\]^_`{|}~' | fold -w 64 | head -n 1)
 DB_OBF=$(cat /dev/urandom | tr -dc 'A-Za-z0-9' | fold -w 8 | head -n 1)
 DB_OBF2=$(cat /dev/urandom | tr -dc 'A-Za-z0-9' | fold -w 8 | head -n 1)
@@ -218,6 +218,7 @@ GRANT ALL ON *.* TO '$DB_ADMIN'@'localhost' WITH GRANT OPTION;
 MYSQL_SCRIPT
 wait
 
+cd ~
 # The phpMyAdmin available in the Ubuntu OS repository for Ubuntu 20.04 may be old. So, we will download the latest version of phpMyAdmin from the official website.
 wget https://files.phpmyadmin.net/phpMyAdmin/5.0.4/phpMyAdmin-5.0.4-all-languages.tar.gz
 wait
@@ -229,16 +230,16 @@ wait
 # Create blowfish key for config file
 BLOWFISH=$(cat /dev/urandom | tr -dc 'A-Za-z0-9!#$%&()*+,-./:;<=>?@[\]^_`{|}~' | fold -w 32 | head -n 1)
 
-sudo sed -i "s/{blowfish}/$BLOWFISH/" ~/LEMP_MODX_Insatll_Bash/config.inc.php
+sudo sed -i "s/{blowfish}/$BLOWFISH/" /home/$USER/LEMP_MODX_Insatll_Bash/config.inc.php
 wait
-sudo sed -i "s/{controluser}/$PMA_DB_USER/" ~/LEMP_MODX_Insatll_Bash/config.inc.php
+sudo sed -i "s/{controluser}/$PMA_DB_USER/" /home/$USER/LEMP_MODX_Insatll_Bash/config.inc.php
 wait
-sudo sed -i "s/{controlpass}/$PMA_DB_PASS/" ~/LEMP_MODX_Insatll_Bash/config.inc.php
+sudo sed -i "s/{controlpass}/$PMA_DB_PASS/" /home/$USER/LEMP_MODX_Insatll_Bash/config.inc.php
 wait
 
 sudo rm /usr/share/phpMyAdmin/config.inc.php
 wait
-sudo cp ~/LEMP_MODX_Insatll_Bash/config.inc.php /usr/share/phpMyAdmin/
+sudo cp /home/$USER/LEMP_MODX_Insatll_Bash/config.inc.php /usr/share/phpMyAdmin/
 wait
 
 # Import the create_tables.sql to create tables for phpMyAdmin
@@ -349,10 +350,10 @@ if ! [ -d $sitesAvailable ]; then
 fi
 
 # Create the domain server block
-sudo sed -i "s/{domain}/$newdomain/" ~/LEMP_MODX_Insatll_Bash/server_block
+sudo sed -i "s/{domain}/$newdomain/" /home/$USER/LEMP_MODX_Insatll_Bash/server_block
 wait
 SA_PATH="$sitesAvailable/$newdomain"
-sudo cp ~/LEMP_MODX_Insatll_Bash/server_block $SA_PATH
+sudo cp /home/$USER/LEMP_MODX_Insatll_Bash/server_block $SA_PATH
 wait
 
 # Create the PhpMyAdmin hostname
@@ -360,9 +361,9 @@ PMAOBF=$(cat /dev/urandom | tr -dc 'A-Za-z0-9' | fold -w 8 | head -n 1)
 PMA_HOST="pma_$PMAOBF.$newdomain"
 
 # Create the PhpMyAdmin server block
-sudo sed -i "s/{pma_host}/$PMA_HOST/" ~/LEMP_MODX_Insatll_Bash/pma_server_block
+sudo sed -i "s/{pma_host}/$PMA_HOST/" /home/$USER/LEMP_MODX_Insatll_Bash/pma_server_block
 wait
-sudo cp ~/LEMP_MODX_Insatll_Bash/pma_server_block /etc/nginx/conf.d/phpMyAdmin.conf
+sudo cp /home/$USER/LEMP_MODX_Insatll_Bash/pma_server_block /etc/nginx/conf.d/phpMyAdmin.conf
 wait
 
 # Symlink Server Block

@@ -62,14 +62,9 @@ done
 
 echo "Selected Timezone: $selectedTimezone"
 
-#Add some PPAs to stay current
-#apt-get install -y software-properties-common
-#apt-add-repository ppa:ondrej/apache2 -y
-apt-add-repository ppa:ondrej/nginx-mainline -y
-apt-add-repository ppa:ondrej/php -y
-
 #Install base packages
 sudo apt-get update
+sudo apt-get upgrade
 sudo apt-get install -y build-essential curl nano wget lftp unzip bzip2 arj nomarch lzop htop openssl gcc git binutils
 sudo apt-get install -y libmcrypt4 libpcre3-dev make python3 python3-pip supervisor unattended-upgrades whois zsh imagemagick uuid-runtime net-tools
 

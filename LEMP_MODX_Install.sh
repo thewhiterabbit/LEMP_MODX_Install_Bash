@@ -1,7 +1,7 @@
 #!/bin/sh
 # Author: Aaron K. Nall
 if [[ ! $(sudo echo 0) ]]; then exit; fi
-
+echo ""
 echo "Welcome to the Ubuntu/Debian LEMP Stack Installer."
 echo "This script will install a full LEMP Stack on this system."
 echo "The www-data group will become $USER's primay group."

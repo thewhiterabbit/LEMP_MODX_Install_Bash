@@ -25,6 +25,7 @@ do
                 y | Y)
                         validConfirm="true"
                         echo "You will be asked for input, please be patient."
+                        sleep 5
                         ;;
 
                 n | N)
@@ -41,9 +42,10 @@ do
 done
 
 # Add current user to the www-data group as primary
-sudo usermod -aG www-data $USER
+$UN="$(who am i | awk '{print $1}')"
+sudo usermod -aG www-data $UN
 wait
-sudo usermod -g www-data $USER
+sudo usermod -g www-data $UN
 wait
 
 # Update apt
@@ -217,7 +219,7 @@ GRANT ALL ON *.* TO '$DB_ADMIN'@'localhost' WITH GRANT OPTION;
 MYSQL_SCRIPT
 wait
 
-cd ~
+cd /home/$UN
 # The phpMyAdmin available in the Ubuntu OS repository for Ubuntu 20.04 may be old. So, we will download the latest version of phpMyAdmin from the official website.
 wget https://files.phpmyadmin.net/phpMyAdmin/5.0.4/phpMyAdmin-5.0.4-all-languages.tar.gz
 wait
@@ -229,16 +231,16 @@ wait
 # Create blowfish key for config file
 BLOWFISH=$(cat /dev/urandom | tr -dc 'A-Za-z0-9!#$%&()*+,-./:;<=>?@[\]^_`{|}~' | fold -w 32 | head -n 1)
 
-sudo sed -i "s/{blowfish}/$BLOWFISH/" LEMP_MODX_Install_Bash/config.inc.php
+sudo sed -i "s/{blowfish}/$BLOWFISH/" /home/$UN/LEMP_MODX_Install_Bash/config.inc.php
 wait
-sudo sed -i "s/{controluser}/$PMA_DB_USER/" LEMP_MODX_Install_Bash/config.inc.php
+sudo sed -i "s/{controluser}/$PMA_DB_USER/" /home/$UN/LEMP_MODX_Install_Bash/config.inc.php
 wait
-sudo sed -i "s/{controlpass}/$PMA_DB_PASS/" LEMP_MODX_Install_Bash/config.inc.php
+sudo sed -i "s/{controlpass}/$PMA_DB_PASS/" /home/$UN/LEMP_MODX_Install_Bash/config.inc.php
 wait
 
 sudo rm /usr/share/phpMyAdmin/config.inc.php
 wait
-sudo cp LEMP_MODX_Install_Bash/config.inc.php /usr/share/phpMyAdmin/
+sudo cp /home/$UN/LEMP_MODX_Install_Bash/config.inc.php /usr/share/phpMyAdmin/
 wait
 
 # Import the create_tables.sql to create tables for phpMyAdmin
@@ -350,20 +352,25 @@ if ! [ -d $sitesAvailable ]; then
 fi
 
 # Create the domain server block
-sudo sed -i "s/{domain}/$newdomain/" LEMP_MODX_Install_Bash/server_block
+sudo sed -i "s/{domain}/$newdomain/" /home/$UN/LEMP_MODX_Install_Bash/server_block
 wait
 SA_PATH="$sitesAvailable/$newdomain"
-sudo cp LEMP_MODX_Install_Bash/server_block $SA_PATH
+sudo cp /home/$UN/LEMP_MODX_Install_Bash/server_block $SA_PATH
 wait
 
 # Create the PhpMyAdmin hostname
 PMAOBF=$(cat /dev/urandom | tr -dc 'A-Za-z0-9' | fold -w 8 | head -n 1)
-PMA_HOST="pma_$PMAOBF.$newdomain"
+PMA_SUB="pma_$PMAOBF"
+PMA_HOST="$PMA_SUB.$newdomain"
 
 # Create the PhpMyAdmin server block
-sudo sed -i "s/{pma_host}/$PMA_HOST/" LEMP_MODX_Install_Bash/pma_server_block
+STR="{PMAHOST}"
+sudo sed -i "s/$STR/$PMA_HOST/" /home/$UN/LEMP_MODX_Install_Bash/pma_server_block
 wait
-sudo cp LEMP_MODX_Install_Bash/pma_server_block /etc/nginx/conf.d/phpMyAdmin.conf
+STR2="{PMASUB}"
+sudo sed -i "s/$STR2/$PMA_SUB/" /home/$UN/LEMP_MODX_Install_Bash/pma_server_block
+wait
+sudo cp /home/$UN/LEMP_MODX_Install_Bash/pma_server_block /etc/nginx/conf.d/phpMyAdmin.conf
 wait
 
 # Symlink Server Block
@@ -383,20 +390,20 @@ echo ""
 sleep 5
 echo "Now downloding latest MODX..."
 
-cd ~
+cd /home/$UN
 wget -O modx.zip https://modx.com/download/direct?id=modx-2.8.1-pl-advanced.zip&0=abs
 wait
 unzip modx.zip
 wait
 sudo mkdir /var/www/$newdomain
 wait
-sudo mv modx-2.8.1-pl/setup /var/www/$newdomain/
+sudo mv /home/$UN/modx-2.8.1-pl/setup /var/www/$newdomain/
 wait
-sudo mv modx-2.8.1-pl modx
+sudo mv /home/$UN/modx-2.8.1-pl /home/$UN/modx
 wait
-MODXCOREPATH = /home/$USER/modx/core
+MODXCOREPATH="/home/$UN/modx/core"
 
-sudo chown -R www-data:www-data modx/core
+sudo chown -R www-data:www-data /home/$UN/modx/core
 wait
 sudo mkdir /usr/share/phpMyAdmin/tmp
 wait
@@ -439,7 +446,7 @@ sudo chown -R www-data:www-data /var/www
 wait
 
 #Setup unattended security upgrades
-cat > /etc/apt/apt.conf.d/10periodic << EOF
+sudo cat > /etc/apt/apt.conf.d/10periodic << EOF
 APT::Periodic::Update-Package-Lists "1";
 APT::Periodic::Download-Upgradeable-Packages "1";
 APT::Periodic::AutocleanInterval "7";
@@ -453,9 +460,9 @@ sleep 5
 echo "Creating database for $newdomain..."
 sleep 2
 
-FP="~/mysql_info_$newdomain.txt"
+FP="/home/$UN/mysql_info_$newdomain.txt"
 sudo echo "MySQL root Password: $MYSQL_ROOT_PASSWORD" > $FP
-FP2="~/modx_db_info_$newdomain.txt"
+FP2="/home/$UN/modx_db_info_$newdomain.txt"
 sudo echo "$newdomain Info
 ------------------------
 MODX DB Name: $MODX_DB
@@ -478,16 +485,16 @@ echo "MODX DB Password: $MODX_DB_PASSWORD"
 sleep 1
 echo "MODX Core Path: $MODXCOREPATH";
 sleep 1
-echo "MODX Database Connection Details saved to ~/modx_db_info_$newdomain.txt"
+echo "MODX Database Connection Details saved to /home/$UN/modx_db_info_$newdomain.txt"
 sleep 1
 echo "Your MySQL root Password is: $MYSQL_ROOT_PASSWORD"
 echo "Save this in a safe place or download the following file..."
-echo "~/mysql_info_$newdomain.txt"
+echo "/home/$UN/mysql_info_$newdomain.txt"
 echo ""
 sleep 1
 echo "Access PhpMyAdmin at: $PMA_HOST"
 echo "You will need to create a DNS record for this subdomain."
-echo "PhpMyAdmin can also be accessed at: $newdomain/."
+echo "PhpMyAdmin can also be accessed at: $newdomain/$PMA_SUB."
 echo ""
 sleep 1
 echo "Database Admin Info"

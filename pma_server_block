@@ -1,9 +1,9 @@
 server {
    listen 80;
-   server_name {pma_host} www.{pma_host};
+   server_name {PMAHOST} www.{PMAHOST};
    root /usr/share/phpMyAdmin;
 
-   location / {
+   location /{PMASUB} {
       index index.php;
    }
 

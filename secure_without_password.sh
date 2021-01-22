@@ -9,10 +9,9 @@ secure_user(){
         read KEY
     done
 
-    mkdir ~/.ssh
+    mkdir -p ~/.ssh
     sudo echo
-    "$KEY"
-    >> ~/.ssh/authorized_keys
+    "$KEY" >> ~/.ssh/authorized_keys
 
     echo "Private key was added to ~.ssh/authorized_keys"
     echo ""

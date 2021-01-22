@@ -39,7 +39,6 @@ do
                         confirmInstall
         esac
 done
-echo "ok"
 
 # Add current user to the www-data group as primary
 sudo usermod -aG www-data $USER
@@ -230,16 +229,16 @@ wait
 # Create blowfish key for config file
 BLOWFISH=$(cat /dev/urandom | tr -dc 'A-Za-z0-9!#$%&()*+,-./:;<=>?@[\]^_`{|}~' | fold -w 32 | head -n 1)
 
-sudo sed -i "s/{blowfish}/$BLOWFISH/" /home/$USER/LEMP_MODX_Insatll_Bash/config.inc.php
+sudo sed -i "s/{blowfish}/$BLOWFISH/" LEMP_MODX_Insatll_Bash/config.inc.php
 wait
-sudo sed -i "s/{controluser}/$PMA_DB_USER/" /home/$USER/LEMP_MODX_Insatll_Bash/config.inc.php
+sudo sed -i "s/{controluser}/$PMA_DB_USER/" LEMP_MODX_Insatll_Bash/config.inc.php
 wait
-sudo sed -i "s/{controlpass}/$PMA_DB_PASS/" /home/$USER/LEMP_MODX_Insatll_Bash/config.inc.php
+sudo sed -i "s/{controlpass}/$PMA_DB_PASS/" LEMP_MODX_Insatll_Bash/config.inc.php
 wait
 
 sudo rm /usr/share/phpMyAdmin/config.inc.php
 wait
-sudo cp /home/$USER/LEMP_MODX_Insatll_Bash/config.inc.php /usr/share/phpMyAdmin/
+sudo cp LEMP_MODX_Insatll_Bash/config.inc.php /usr/share/phpMyAdmin/
 wait
 
 # Import the create_tables.sql to create tables for phpMyAdmin
@@ -248,7 +247,8 @@ wait
 
 # Secure MySQL installation
 sudo mysql -uroot <<MYSQL_SCRIPT
-UPDATE mysql.user SET Password=PASSWORD('$MYSQL_ROOT_PASSWORD') WHERE User='root';
+USE mysql;
+ALTER USER root IDENTIFIED WITH mysql_native_password BY '$MYSQL_ROOT_PASSWORD';
 DELETE FROM mysql.user WHERE User='';
 DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
 DROP DATABASE IF EXISTS test;
@@ -350,10 +350,10 @@ if ! [ -d $sitesAvailable ]; then
 fi
 
 # Create the domain server block
-sudo sed -i "s/{domain}/$newdomain/" /home/$USER/LEMP_MODX_Insatll_Bash/server_block
+sudo sed -i "s/{domain}/$newdomain/" LEMP_MODX_Insatll_Bash/server_block
 wait
 SA_PATH="$sitesAvailable/$newdomain"
-sudo cp /home/$USER/LEMP_MODX_Insatll_Bash/server_block $SA_PATH
+sudo cp LEMP_MODX_Insatll_Bash/server_block $SA_PATH
 wait
 
 # Create the PhpMyAdmin hostname
@@ -361,9 +361,9 @@ PMAOBF=$(cat /dev/urandom | tr -dc 'A-Za-z0-9' | fold -w 8 | head -n 1)
 PMA_HOST="pma_$PMAOBF.$newdomain"
 
 # Create the PhpMyAdmin server block
-sudo sed -i "s/{pma_host}/$PMA_HOST/" /home/$USER/LEMP_MODX_Insatll_Bash/pma_server_block
+sudo sed -i "s/{pma_host}/$PMA_HOST/" LEMP_MODX_Insatll_Bash/pma_server_block
 wait
-sudo cp /home/$USER/LEMP_MODX_Insatll_Bash/pma_server_block /etc/nginx/conf.d/phpMyAdmin.conf
+sudo cp LEMP_MODX_Insatll_Bash/pma_server_block /etc/nginx/conf.d/phpMyAdmin.conf
 wait
 
 # Symlink Server Block
@@ -390,13 +390,13 @@ unzip modx.zip
 wait
 sudo mkdir /var/www/$newdomain
 wait
-sudo mv ~/modx-2.8.1-pl/setup /var/www/$newdomain/
+sudo mv modx-2.8.1-pl/setup /var/www/$newdomain/
 wait
-sudo mv ~/modx-2.8.1-pl ~/modx
+sudo mv modx-2.8.1-pl modx
 wait
 MODXCOREPATH = /home/$USER/modx/core
 
-sudo chown -R www-data:www-data /home/$USER/modx/core
+sudo chown -R www-data:www-data modx/core
 wait
 sudo mkdir /usr/share/phpMyAdmin/tmp
 wait

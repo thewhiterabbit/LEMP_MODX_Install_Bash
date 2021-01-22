@@ -19,9 +19,9 @@ secure_user(){
 
 secure_ssh(){
     sudo rm /etc/ssh/sshd_config
-    sudo cp ~/sshd_conf /etc/ssh/sshd_config
+    sudo cp ~/LEMP_MODX_Insatll_Bash/sshd_conf /etc/ssh/sshd_config
 
-    echo "/etc/ssh/sshd_config was changed to reflect ~/sshd_conf"
+    echo "/etc/ssh/sshd_config was changed to reflect ~/LEMP_MODX_Insatll_Bash/sshd_conf"
     echo ""
     sleep 1
 }

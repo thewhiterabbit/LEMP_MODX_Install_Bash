@@ -229,163 +229,16 @@ wait
 # Create blowfish key for config file
 BLOWFISH=$(cat /dev/urandom | tr -dc 'A-Za-z0-9!#$%&()*+,-./:;<=>?@[\]^_`{|}~' | fold -w 32 | head -n 1)
 
-# Write config file
-sudo echo
-"<?php
-/* vim: set expandtab sw=4 ts=4 sts=4: */
-/**
- * phpMyAdmin sample configuration, you can use it as base for
- * manual configuration. For easier setup you can use setup/
- *
- * All directives are explained in documentation in the doc/ folder
- * or at <https://docs.phpmyadmin.net/>.
- *
- * @package PhpMyAdmin
- */
-declare(strict_types=1);
+sudo sed -i "s/{blowfish}/$BLOWFISH/" ~/LEMP_MODX_Insatll_Bash/config.inc.php
+wait
+sudo sed -i "s/{controluser}/$PMA_DB_USER/" ~/LEMP_MODX_Insatll_Bash/config.inc.php
+wait
+sudo sed -i "s/{controlpass}/$PMA_DB_PASS/" ~/LEMP_MODX_Insatll_Bash/config.inc.php
+wait
 
-/**
- * This is needed for cookie based authentication to encrypt password in
- * cookie. Needs to be 32 chars long.
- */
-"'$cfg'"['blowfish_secret'] = '$BLOWFISH'; /* YOU MUST FILL IN THIS FOR COOKIE AUTH! */
-
-/**
- * Servers configuration
- */
-"'$i'" = 0;
-
-/**
- * First server
- */
-"'$i'"++;
-/* Authentication type */
-"'$cfg'"['Servers']["'$i'"]['auth_type'] = 'cookie';
-/* Server parameters */
-"'$cfg'"['Servers']["'$i'"]['host'] = 'localhost';
-"'$cfg'"['Servers']["'$i'"]['compress'] = false;
-"'$cfg'"['Servers']["'$i'"]['AllowNoPassword'] = false;
-
-/**
- * phpMyAdmin configuration storage settings.
- */
-
-/* User used to manipulate with storage */
-// "'$cfg'"['Servers']["'$i'"]['controlhost'] = '';
-// "'$cfg'"['Servers']["'$i'"]['controlport'] = '';
-"'$cfg'"['Servers']["'$i'"]['controluser'] = '$PMA_DB_USER';
-"'$cfg'"['Servers']["'$i'"]['controlpass'] = '$PMA_DB_PASS';
-
-/* Storage database and tables */
-"'$cfg'"['Servers']["'$i'"]['pmadb'] = 'phpmyadmin';
-"'$cfg'"['Servers']["'$i'"]['bookmarktable'] = 'pma__bookmark';
-"'$cfg'"['Servers']["'$i'"]['relation'] = 'pma__relation';
-"'$cfg'"['Servers']["'$i'"]['table_info'] = 'pma__table_info';
-"'$cfg'"['Servers']["'$i'"]['table_coords'] = 'pma__table_coords';
-"'$cfg'"['Servers']["'$i'"]['pdf_pages'] = 'pma__pdf_pages';
-"'$cfg'"['Servers']["'$i'"]['column_info'] = 'pma__column_info';
-"'$cfg'"['Servers']["'$i'"]['history'] = 'pma__history';
-"'$cfg'"['Servers']["'$i'"]['table_uiprefs'] = 'pma__table_uiprefs';
-"'$cfg'"['Servers']["'$i'"]['tracking'] = 'pma__tracking';
-"'$cfg'"['Servers']["'$i'"]['userconfig'] = 'pma__userconfig';
-"'$cfg'"['Servers']["'$i'"]['recent'] = 'pma__recent';
-"'$cfg'"['Servers']["'$i'"]['favorite'] = 'pma__favorite';
-"'$cfg'"['Servers']["'$i'"]['users'] = 'pma__users';
-"'$cfg'"['Servers']["'$i'"]['usergroups'] = 'pma__usergroups';
-"'$cfg'"['Servers']["'$i'"]['navigationhiding'] = 'pma__navigationhiding';
-"'$cfg'"['Servers']["'$i'"]['savedsearches'] = 'pma__savedsearches';
-"'$cfg'"['Servers']["'$i'"]['central_columns'] = 'pma__central_columns';
-"'$cfg'"['Servers']["'$i'"]['designer_settings'] = 'pma__designer_settings';
-"'$cfg'"['Servers']["'$i'"]['export_templates'] = 'pma__export_templates';
-
-/**
- * End of servers configuration
- */
-
-/**
- * Directories for saving/loading files from server
- */
-"'$cfg'"['UploadDir'] = '';
-"'$cfg'"['SaveDir'] = '';
-
-/**
- * Whether to display icons or text or both icons and text in table row
- * action segment. Value can be either of 'icons', 'text' or 'both'.
- * default = 'both'
- */
-//"'$cfg'"['RowActionType'] = 'icons';
-
-/**
- * Defines whether a user should be displayed a \"show all (records)\"
- * button in browse mode or not.
- * default = false
- */
-//"'$cfg'"['ShowAll'] = true;
-
-/**
- * Number of rows displayed when browsing a result set. If the result
- * set contains more rows, \"Previous\" and \"Next\".
- * Possible values: 25, 50, 100, 250, 500
- * default = 25
- */
-//"'$cfg'"['MaxRows'] = 50;
-
-/**
- * Disallow editing of binary fields
- * valid values are:
- *   false    allow editing
- *   'blob'   allow editing except for BLOB fields
- *   'noblob' disallow editing except for BLOB fields
- *   'all'    disallow editing
- * default = 'blob'
- */
-//"'$cfg'"['ProtectBinary'] = false;
-
-/**
- * Default language to use, if not browser-defined or user-defined
- * (you find all languages in the locale folder)
- * uncomment the desired line:
- * default = 'en'
- */
-//"'$cfg'"['DefaultLang'] = 'en';
-//"'$cfg'"['DefaultLang'] = 'de';
-
-/**
- * How many columns should be used for table display of a database?
- * (a value larger than 1 results in some information being hidden)
- * default = 1
- */
-//"'$cfg'"['PropertiesNumColumns'] = 2;
-
-/**
- * Set to true if you want DB-based query history.If false, this utilizes
- * JS-routines to display query history (lost by window close)
- *
- * This requires configuration storage enabled, see above.
- * default = false
- */
-//"'$cfg'"['QueryHistoryDB'] = true;
-
-/**
- * When using DB-based query history, how many entries should be kept?
- * default = 25
- */
-//"'$cfg'"['QueryHistoryMax'] = 100;
-
-/**
- * Whether or not to query the user before sending the error report to
- * the phpMyAdmin team when a JavaScript error occurs
- *
- * Available options
- * ('ask' | 'always' | 'never')
- * default = 'ask'
- */
-//"'$cfg'"['SendErrorReports'] = 'always';
-
-/**
- * You can find more configuration options in the documentation
- * in the doc/ folder or at <https://docs.phpmyadmin.net/>.
- */" > /usr/share/phpMyAdmin/config.inc.php
+sudo rm /usr/share/phpMyAdmin/config.inc.php
+wait
+sudo cp ~/LEMP_MODX_Insatll_Bash/config.inc.php /usr/share/phpMyAdmin/
 wait
 
 # Import the create_tables.sql to create tables for phpMyAdmin
@@ -407,11 +260,9 @@ wait
 
 #Create Nginx virtual host config
 newdomain=""
-domain=$1
-rootPath=$2
-sitesEnable='/etc/nginx/sites-enabled/'
-sitesAvailable='/etc/nginx/sites-available/'
-serverRoot='/var/www/'
+sitesEnabled='/etc/nginx/sites-enabled'
+sitesAvailable='/etc/nginx/sites-available'
+webRoot='/var/www'
 domainRegex="^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$"
 
 acquireDomain(){
@@ -441,7 +292,6 @@ acquireDomain(){
         if [ -z "$subdomain" ]
         then
                 newdomain="$domain"
-
         else
                 newdomain="${subdomain}.${domain}"
         fi
@@ -465,15 +315,15 @@ wait
 #ufw allow 50000:50099/tcp
 #ufw allow out 20/tcp
 
+# Activate UFW
+sudo ufw --force enable
+wait
+
 # Show the new ufw status
 UFWS=$(ufw status)
 wait
 echo "$UFWS"
 sleep 5
-
-# Activate UFW
-sudo ufw --force enable
-wait
 
 while [ -e $newdomain ]
 do
@@ -484,14 +334,10 @@ done
 echo "Using $newdomain for this LEMP installation"
 sleep 5
 
-if [ "$rootPath" = "" ]; then
-        rootPath=$serverRoot$newdomain
-fi
-
-if ! [ -d $sitesEnable ]; then
-        sudo mkdir -pv $sitesEnable
+if ! [ -d $sitesEnabled ]; then
+        sudo mkdir -pv $sitesEnabled
         wait
-        sudo chmod 777 $sitesEnable
+        sudo chmod 777 $sitesEnabled
         wait
 fi
 
@@ -502,69 +348,28 @@ if ! [ -d $sitesAvailable ]; then
         wait
 fi
 
-sudo echo
-"server {
-    server_name $newdomain www.$newdomain;
-    root /var/www/$newdomain;
-    index index.html index.htm index.php;
-    location / {
-        try_files "'$uri'" "'$uri'"/ =404;
-        if (!-e "'$request_filename'") {
-                rewrite ^/(.*)$ /index.php?q="'$1'" last;
-        }
-    }
-    location ~ \.php$ {
-        include snippets/fastcgi-php.conf;
-        fastcgi_pass unix:/var/run/php/php7.4-fpm.sock;
-     }
-
-    location ~ /\.ht {
-        deny all;
-    }
-}" > $sitesAvailable$newdomain
+# Create the domain server block
+sudo sed -i "s/{domain}/$newdomain/" ~/LEMP_MODX_Insatll_Bash/server_block
+wait
+SA_PATH="$sitesAvailable/$newdomain"
+sudo cp ~/LEMP_MODX_Insatll_Bash/server_block $SA_PATH
 wait
 
+# Create the PhpMyAdmin hostname
 PMAOBF=$(cat /dev/urandom | tr -dc 'A-Za-z0-9' | fold -w 8 | head -n 1)
 PMA_HOST="pma_$PMAOBF.$newdomain"
 
-sudo echo 
-"server {
-   listen 80;
-   server_name $PMA_HOST;
-   root /usr/share/phpMyAdmin;
-
-   location / {
-      index index.php;
-   }
-
-## Images and static content is treated different
-   location ~* ^.+.(jpg|jpeg|gif|css|png|js|ico|xml)$ {
-      access_log off;
-      expires 30d;
-   }
-
-   location ~ /\.ht {
-      deny all;
-   }
-
-   location ~ /(libraries|setup/frames|setup/libs) {
-      deny all;
-      return 404;
-   }
-
-   location ~ \.php$ {
-      include /etc/nginx/fastcgi_params;
-      fastcgi_pass unix:/run/php/php7.4-fpm.sock;
-      fastcgi_index index.php;
-      fastcgi_param SCRIPT_FILENAME /usr/share/phpMyAdmin"'$fastcgi_script_name'";
-   }
-}" > /etc/nginx/conf.d/phpMyAdmin.conf
+# Create the PhpMyAdmin server block
+sudo sed -i "s/{pma_host}/$PMA_HOST/" ~/LEMP_MODX_Insatll_Bash/pma_server_block
+wait
+sudo cp ~/LEMP_MODX_Insatll_Bash/pma_server_block /etc/nginx/conf.d/phpMyAdmin.conf
 wait
 
 # Symlink Server Block
 sudo ln -s /etc/nginx/sites-available/$newdomain /etc/nginx/sites-enabled/
 wait
 
+# Remove the default server block
 sudo rm /etc/nginx/sites-enabled/default
 wait
 
@@ -582,11 +387,11 @@ wget -O modx.zip https://modx.com/download/direct?id=modx-2.8.1-pl-advanced.zip&
 wait
 unzip modx.zip
 wait
-mkdir /var/www/$newdomain
+sudo mkdir /var/www/$newdomain
 wait
-mv modx-2.8.1-pl/setup /var/www/$newdomain/
+sudo mv ~/modx-2.8.1-pl/setup /var/www/$newdomain/
 wait
-mv modx-2.8.1-pl modx
+sudo mv ~/modx-2.8.1-pl ~/modx
 wait
 MODXCOREPATH = /home/$USER/modx/core
 
@@ -647,12 +452,14 @@ sleep 5
 echo "Creating database for $newdomain..."
 sleep 2
 
-echo "MySQL root Password: $MYSQL_ROOT_PASSWORD" > ~/mysql_info_$newdomain.txt
-echo "$newdomain Info
+FP="~/mysql_info_$newdomain.txt"
+sudo echo "MySQL root Password: $MYSQL_ROOT_PASSWORD" > $FP
+FP2="~/modx_db_info_$newdomain.txt"
+sudo echo "$newdomain Info
 ------------------------
 MODX DB Name: $MODX_DB
 MODX DB Username: $MODX_DB_USER
-MODX DB Password: $MODX_DB_PASSWORD" > ~/modx_db_info_$newdomain.txt
+MODX DB Password: $MODX_DB_PASSWORD" > $FP2
 
 echo "Open your browser and navigate to $newdomain/setup/"
 sleep 1

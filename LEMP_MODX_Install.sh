@@ -92,13 +92,14 @@ wait
 sudo systemctl start php7.4-fpm
 wait
 
-#Install and configure Memcached
-sudo apt-get install -y memcached
-wait
-sudo sed -i 's/-l 0.0.0.0/-l 127.0.0.1/' /etc/memcached.conf
-wait
-sudo systemctl restart memcached
-wait
+#Future feature? - Install and configure Memcached
+#sudo apt-get install -y memcached
+#wait
+#FT="-l 127.0.0.1"
+#sudo sed -i 's/$FT/$HOST_IP/' /etc/memcached.conf
+#wait
+#sudo systemctl restart memcached
+#wait
 
 #Update PHP CLI configuration
 sudo sed -i "s/error_reporting = .*/error_reporting = E_ALL/" /etc/php/7.4/cli/php.ini

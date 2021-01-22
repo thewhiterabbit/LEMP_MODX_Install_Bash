@@ -12,7 +12,32 @@
     <li>PhpMyAdmin</li>
     <li>Fail2Ban</li>
     <li>UFW</li>
-    <li></li>
-    <li></li>
+    <li>OpenSSL</li>
+    <li>build-essential</li>
+    <li>curl</li>
+    <li>nano</li>
+    <li>wget</li>
+    <li>lftp</li>
+    <li>unzip</li>
+    <li>bzip2</li>
+    <li>arj</li>
+    <li>nomarch</li>
+    <li>lzop</li>
+    <li>htop</li>
+    <li>gcc</li>
+    <li>git</li>
+    <li>binutils</li>
+    <li>libmcrypt4</li>
+    <li>libpcre3-dev</li>
+    <li>make</li>
+    <li>python3</li>
+    <li>python3-pip</li>
+    <li>supervisor</li>
+    <li>unattended-upgrades</li>
+    <li>whois</li>
+    <li>zsh</li>
+    <li>imagemagick</li>
+    <li>uuid-runtime</li>
+    <li>net-tools</li>
 </ul>
 <p>Contributions are welcomed and apreciated.</p>

@@ -49,26 +49,9 @@ sudo usermod -g www-data $USER
 # Update apt
 sudo apt-get update
 sudo apt-get upgrade -y
+
+# Instal firewall & security basics
 sudo apt-get install -y fail2ban ufw
-
-# SSH, HTTP and HTTPS
-sudo ufw default deny incoming
-sudo ufw default allow outgoing
-sudo ufw allow 'OpenSSH'
-sudo ufw allow 9000
-sudo ufw allow 8000
-sudo ufw allow from 104.9.17.32
-
-# Skip the following 3 lines if you do not plan on using FTP
-#ufw allow 21
-#ufw allow 50000:50099/tcp
-#ufw allow out 20/tcp
-
-# Show the new ufw status
-sudo ufw status
-
-# And lastly we activate UFW
-sudo ufw --force enable
 
 while [ "$selectedTimezone" = "" ]
 do
@@ -395,19 +378,27 @@ serverRoot='/var/www/'
 domainRegex="^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$"
 
 acquireDomain(){
+        while [ "$OWNER_IP" = "" ]
+        do
+                echo -n "Enter the IP you want to have admin remote access:"
+                read OWNER_IP
+        done
+        echo ""
         while [ "$domain" = "" ]
         do
-                echo "Enter the host domain:"
+                echo -n "Enter your host domain:"
                 read domain
         done
+        echo ""
 
         until [[ $domain =~ $domainRegex ]]
         do
-                echo "Enter a valid domain:"
+                echo -n "Enter a valid domain:"
                 read domain
         done
+        echo ""
 
-        echo "Enter sub domain (optional):"
+        echo -n "Enter the sub domain (optional):"
                 read subdomain
 
         if [ -z "$subdomain" ]
@@ -417,9 +408,28 @@ acquireDomain(){
         else
                 newdomain="${subdomain}.${domain}"
         fi
+        echo ""
 }
 
 acquireDomain
+
+# SSH, HTTP and HTTPS
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+sudo ufw allow 'OpenSSH'
+sudo ufw allow from $OWNER_IP
+
+# Skip the following 3 lines if you do not plan on using unsecure FTP
+#ufw allow 21
+#ufw allow 50000:50099/tcp
+#ufw allow out 20/tcp
+
+# Show the new ufw status
+UFWS=$(ufw status)
+echo "$UFWS"
+
+# Activate UFW
+sudo ufw --force enable
 
 while [ -e $newdomain ]
 do

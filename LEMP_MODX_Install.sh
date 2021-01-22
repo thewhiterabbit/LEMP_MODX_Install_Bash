@@ -139,7 +139,7 @@ wait
 sudo sed -i "s/post_max_size = .*/post_max_size = 256M/" /etc/php/7.4/fpm/php.ini
 echo "Modified post_max_size /etc/php/7.4/fpm/php.ini"
 wait
-sudo sed -i "s/;date.timezone.*/date.timezone = $selectedTimezone/" /etc/php/7.4/fpm/php.ini
+sudo sed -i "s|;date.timezone.*|date.timezone = $selectedTimezone|" /etc/php/7.4/fpm/php.ini
 echo "Modified date.timezone /etc/php/7.4/fpm/php.ini"
 wait
 

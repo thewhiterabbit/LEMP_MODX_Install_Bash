@@ -5,17 +5,6 @@ set -e
 # Get the username of the actual user
 UN="$(who am i | awk '{print $1}')"
 
-# Set the home directory in a variable
-if [[ "$UN" != "root" ]] || [[ "$USERNAME" != "" ]]; then
-    if [[ "$USERNAME" != "" ]]; then
-        HD="/home/$USERNAME"
-    else
-        HD="/home/$UN"
-    fi
-else
-    HD="/root"
-fi
-
 # Check for options
 while [ -n "$1" ]; do # while loop starts
 	case "$1" in
@@ -39,6 +28,11 @@ while [ -n "$1" ]; do # while loop starts
                         shift
                         ;;
 
+                -s)
+                        SS="$2"
+                        shift
+                        ;;
+
                 *)
                         echo "Option $1 is invalid."
                         echo "Exiting"
@@ -47,6 +41,17 @@ while [ -n "$1" ]; do # while loop starts
 	esac
 	shift
 done
+
+# Set the home directory in a variable
+if [[ "$UN" != "root" ]] || [[ "$USERNAME" != "" ]]; then
+    if [[ "$USERNAME" != "" ]]; then
+        HD="/home/$USERNAME"
+    else
+        HD="/home/$UN"
+    fi
+else
+    HD="/root"
+fi
 
 secure_user(){
     sudo mkdir -p $HD/.ssh
@@ -61,6 +66,7 @@ secure_user(){
             read -s KEY
         done
         sudo echo "$KEY" >| $HD/.ssh/authorized_keys
+        echo ""
         echo "Private key was added to $HD/.ssh/authorized_keys"
         echo ""
     else
@@ -95,11 +101,15 @@ if [[ "$UN" != "root" ]]; then
         echo ""
         exit;
     fi
-    secure_ssh
+    if [[ "$SS" != "no" ]]
+        secure_ssh
+    fi
     secure_user
     sudo service ssh reload
 else
-    secure_ssh
+    if [[ "$SS" != "no" ]]
+        secure_ssh
+    fi
     secure_user
     service ssh reload
 fi

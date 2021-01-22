@@ -17,12 +17,12 @@ while [ -n "$1" ]; do # while loop starts
                         shift
                         ;;
 
-                -f
+                -f)
                         FILE="true"
                         shift
                         ;;
 
-                -fn
+                -fn)
                         FILENAME="$2"
                         shift
                         ;;

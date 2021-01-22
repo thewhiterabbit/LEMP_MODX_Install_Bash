@@ -60,10 +60,12 @@ wait
 
 while [ "$selectedTimezone" = "" ]
 do
+        echo ""
         echo "Please enter your timezone as TZ database name"
-        echo "  Reference https://en.wikipedia.org/wiki/List_of_tz_database_time_zones):"
+        echo -n "  Reference https://en.wikipedia.org/wiki/List_of_tz_database_time_zones):"
         read selectedTimezone
 done
+echo ""
 echo "Selected Timezone: $selectedTimezone"
 sleep 5
 
@@ -111,7 +113,7 @@ wait
 sudo sed -i "s/memory_limit = .*/memory_limit = 512M/" /etc/php/7.4/cli/php.ini
 echo "Modified memory_limit /etc/php/7.4/cli/php.ini"
 wait
-sudo sed -i "s/;date.timezone.*/date.timezone = $selectedTimezone/" /etc/php/7.4/cli/php.ini
+sudo sed -i "s|;date.timezone.*|date.timezone = $selectedTimezone|" /etc/php/7.4/cli/php.ini
 echo "Modified date.timezone /etc/php/7.4/cli/php.ini"
 wait
 

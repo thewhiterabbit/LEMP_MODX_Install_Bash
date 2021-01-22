@@ -243,7 +243,9 @@ wget https://files.phpmyadmin.net/phpMyAdmin/5.0.4/phpMyAdmin-5.0.4-all-language
 wait
 tar -zxvf phpMyAdmin-5.0.4-all-languages.tar.gz
 wait
-sudo mv phpMyAdmin-5.0.4-all-languages /usr/share/phpMyAdmin
+sudo mv phpMyAdmin-5.0.4-all-languages phpMyAdmin
+wait
+sudo mv phpMyAdmin /usr/share/
 wait
 
 # Create blowfish key for config file

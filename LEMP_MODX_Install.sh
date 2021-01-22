@@ -247,7 +247,7 @@ sudo mv phpMyAdmin-5.0.4-all-languages /usr/share/phpMyAdmin
 wait
 
 # Create blowfish key for config file
-BLOWFISH=$(cat /dev/urandom | tr -dc 'A-Za-z0-9!#$%&()*+,-./:;<=>?@[\]^_`{|}~' | fold -w 32 | head -n 1)
+BLOWFISH=$(cat /dev/urandom | tr -dc 'A-Za-z0-9!#$%&()*+,-.:;<=>?@[\]^_`{|}~' | fold -w 32 | head -n 1)
 sudo sed -i "s/{blowfish}/$BLOWFISH/" /home/$UN/LEMP_MODX_Install_Bash/config.inc.php
 wait
 sudo sed -i "s/{controluser}/$PMA_DB_USER/" /home/$UN/LEMP_MODX_Install_Bash/config.inc.php

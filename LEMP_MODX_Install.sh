@@ -103,12 +103,16 @@ wait
 
 #Update PHP CLI configuration
 sudo sed -i "s/error_reporting = .*/error_reporting = E_ALL/" /etc/php/7.4/cli/php.ini
+echo "Modified error_reporting /etc/php/7.4/cli/php.ini"
 wait
 sudo sed -i "s/display_errors = .*/display_errors = On/" /etc/php/7.4/cli/php.ini
+echo "Modified display_errors /etc/php/7.4/cli/php.ini"
 wait
 sudo sed -i "s/memory_limit = .*/memory_limit = 512M/" /etc/php/7.4/cli/php.ini
+echo "Modified memory_limit /etc/php/7.4/cli/php.ini"
 wait
 sudo sed -i "s/;date.timezone.*/date.timezone = $selectedTimezone/" /etc/php/7.4/cli/php.ini
+echo "Modified date.timezone /etc/php/7.4/cli/php.ini"
 wait
 
 #Configure sessions directory permissions
@@ -119,42 +123,59 @@ wait
 
 #Tweak PHP-FPM settings
 sudo sed -i "s/error_reporting = .*/error_reporting = E_ALL \& ~E_NOTICE \& ~E_STRICT \& ~E_DEPRECATED/" /etc/php/7.4/fpm/php.ini
+echo "Modified error_reporting /etc/php/7.4/fpm/php.ini"
 wait
 sudo sed -i "s/display_errors = .*/display_errors = Off/" /etc/php/7.4/fpm/php.ini
+echo "Modified display_errors /etc/php/7.4/fpm/php.ini"
 wait
 sudo sed -i "s/memory_limit = .*/memory_limit = 512M/" /etc/php/7.4/fpm/php.ini
+echo "Modified memory_limit /etc/php/7.4/fpm/php.ini"
 wait
 sudo sed -i "s/upload_max_filesize = .*/upload_max_filesize = 256M/" /etc/php/7.4/fpm/php.ini
+echo "Modified upload_max_filesize /etc/php/7.4/fpm/php.ini"
 wait
 sudo sed -i "s/post_max_size = .*/post_max_size = 256M/" /etc/php/7.4/fpm/php.ini
+echo "Modified post_max_size /etc/php/7.4/fpm/php.ini"
 wait
 sudo sed -i "s/;date.timezone.*/date.timezone = $selectedTimezone/" /etc/php/7.4/fpm/php.ini
+echo "Modified date.timezone /etc/php/7.4/fpm/php.ini"
 wait
 
 #Tune PHP-FPM pool settings
 sudo sed -i "s/;listen\.mode =.*/listen.mode = 0666/" /etc/php/7.4/fpm/pool.d/www.conf
+echo "Modified listen\.mode /etc/php/7.4/fpm/pool.d/www.conf"
 wait
 sudo sed -i "s/;request_terminate_timeout =.*/request_terminate_timeout = 60/" /etc/php/7.4/fpm/pool.d/www.conf
+"Modified request_terminate_timeout /etc/php/7.4/fpm/pool.d/www.conf"
 wait
 sudo sed -i "s/pm\.max_children =.*/pm.max_children = 70/" /etc/php/7.4/fpm/pool.d/www.conf
+"Modified max_children /etc/php/7.4/fpm/pool.d/www.conf"
 wait
 sudo sed -i "s/pm\.start_servers =.*/pm.start_servers = 20/" /etc/php/7.4/fpm/pool.d/www.conf
+"Modified start_servers /etc/php/7.4/fpm/pool.d/www.conf"
 wait
 sudo sed -i "s/pm\.min_spare_servers =.*/pm.min_spare_servers = 20/" /etc/php/7.4/fpm/pool.d/www.conf
+"Modified min_spare_servers /etc/php/7.4/fpm/pool.d/www.conf"
 wait
 sudo sed -i "s/pm\.max_spare_servers =.*/pm.max_spare_servers = 35/" /etc/php/7.4/fpm/pool.d/www.conf
+"Modified max_spare_servers /etc/php/7.4/fpm/pool.d/www.conf"
 wait
 sudo sed -i "s/;pm\.max_requests =.*/pm.max_requests = 500/" /etc/php/7.4/fpm/pool.d/www.conf
+"Modified max_requests /etc/php/7.4/fpm/pool.d/www.conf"
 wait
 
 #Tweak Nginx settings
 sudo sed -i "s/worker_processes.*/worker_processes auto;/" /etc/nginx/nginx.conf
+echo "Modified worker_processes /etc/nginx/nginx.conf"
 wait
 sudo sed -i "s/# multi_accept.*/multi_accept on;/" /etc/nginx/nginx.conf
+echo "Modified multi_accept /etc/nginx/nginx.conf"
 wait
 sudo sed -i "s/# server_names_hash_bucket_size.*/server_names_hash_bucket_size 128;/" /etc/nginx/nginx.conf
+echo "Modified server_names_hash_bucket_size /etc/nginx/nginx.conf"
 wait
 sudo sed -i "s/# server_tokens off/server_tokens off/" /etc/nginx/nginx.conf
+echo "Modified server_tokens /etc/nginx/nginx.conf"
 wait
 
 #Configure Gzip for Nginx

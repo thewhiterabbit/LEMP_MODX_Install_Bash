@@ -256,7 +256,10 @@ sudo sed -i "s/{controluser}/$PMA_DB_USER/" /home/$UN/LEMP_MODX_Install_Bash/con
 wait
 sudo sed -i "s/{controlpass}/$PMA_DB_PASS/" /home/$UN/LEMP_MODX_Install_Bash/config.inc.php
 wait
-sudo rm /usr/share/phpMyAdmin/config.inc.php
+CF="/usr/share/phpMyAdmin/config.inc.php"
+if test -f "$CF"; then
+        sudo rm $CF
+fi
 wait
 sudo cp /home/$UN/LEMP_MODX_Install_Bash/config.inc.php /usr/share/phpMyAdmin/
 wait

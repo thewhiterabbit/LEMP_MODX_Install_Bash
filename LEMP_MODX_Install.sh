@@ -413,7 +413,7 @@ echo "Now downloding MODX 2.8.1..."
 cd /home/$UN
 
 # Download MODX
-curl https://modx.com/download/direct?id=modx-2.8.1-pl-advanced.zip&0=abs > modx.zip
+curl https://modx.com/download/direct?id=modx-2.8.1-pl-advanced.zip&0=abs -L -o --progress-bar modx.zip
 wait
 
 # Keep the user informed

@@ -222,7 +222,7 @@ DB_OBF3=$(cat /dev/urandom | tr -dc 'A-Za-z0-9' | fold -w 8 | head -n 1)
 MODX_DB="modx_db_$DB_OBF"
 MODX_DB_USER="modx_dbu_$DB_OBF"
 PMA_DB_USER="pma_$DB_OBF2"
-PMA_DB_PASS=$(cat /dev/urandom | tr -dc 'A-Za-z0-9!#$%&()*+,-./:;<=>?@[\]^_`{|}~' | fold -w 128 | head -n 1)
+PMA_DB_PASS=$(cat /dev/urandom | tr -dc 'A-Za-z0-9!#$%&()*+,-.:;<=>?@[\]^_`{|}~' | fold -w 128 | head -n 1)
 DB_ADMIN="dba_$DB_OBF3"
 DB_ADMIN_PASS=$(cat /dev/urandom | tr -dc 'A-Za-z0-9!"#$%&()*+,-./:;<=>?@[\]^_`{|}~' | fold -w 128 | head -n 1)
 sudo mysql -uroot <<MYSQL_SCRIPT

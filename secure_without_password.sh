@@ -89,7 +89,7 @@ secure_ssh(){
     fi
 
     sudo cp $HD/LEMP_MODX_Install_Bash/sshd_conf /etc/ssh/sshd_config
-
+    echo ""
     echo "/etc/ssh/sshd_config was changed to reflect $HD/LEMP_MODX_Install_Bash/sshd_conf"
     echo ""
     sleep 1
@@ -103,12 +103,16 @@ if [[ "$UN" != "root" ]]; then
     fi
     if [[ "$SS" != "no" ]]; then
         secure_ssh
+    else
+        echo ""
     fi
     secure_user
     sudo service ssh reload
 else
     if [[ "$SS" != "no" ]]; then
         secure_ssh
+    else
+        echo ""
     fi
     secure_user
     service ssh reload

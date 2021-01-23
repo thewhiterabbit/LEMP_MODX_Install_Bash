@@ -370,7 +370,7 @@ if ! [ -d $sitesAvailable ]; then
 fi
 
 # Create the domain server block
-sudo sed -i "s/{domain}/$newdomain/" /home/$UN/LEMP_MODX_Install_Bash/server_block
+sudo sed -i "s/{domain}/$newdomain/g" /home/$UN/LEMP_MODX_Install_Bash/server_block
 wait
 SA_PATH="$sitesAvailable/$newdomain"
 sudo cp /home/$UN/LEMP_MODX_Install_Bash/server_block $SA_PATH
@@ -383,10 +383,10 @@ PMA_HOST="$PMA_SUB.$newdomain"
 
 # Create the PhpMyAdmin server block
 STR="{PMAHOST}"
-sudo sed -i "s/$STR/$PMA_HOST/" /home/$UN/LEMP_MODX_Install_Bash/pma_server_block
+sudo sed -i "s/$STR/$PMA_HOST/g" /home/$UN/LEMP_MODX_Install_Bash/pma_server_block
 wait
 STR2="{PMASUB}"
-sudo sed -i "s/$STR2/$PMA_SUB/" /home/$UN/LEMP_MODX_Install_Bash/pma_server_block
+sudo sed -i "s/$STR2/$PMA_SUB/g" /home/$UN/LEMP_MODX_Install_Bash/pma_server_block
 wait
 sudo cp /home/$UN/LEMP_MODX_Install_Bash/pma_server_block /etc/nginx/conf.d/phpMyAdmin.conf
 wait

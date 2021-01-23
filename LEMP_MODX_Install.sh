@@ -378,7 +378,7 @@ wait
 
 # Create the PhpMyAdmin hostname
 PMAOBF=$(cat /dev/urandom | tr -dc 'A-Za-z0-9' | fold -w 8 | head -n 1)
-PMA_SUB="pma_$PMAOBF"
+PMA_SUB="pma$PMAOBF"
 PMA_HOST="$PMA_SUB.$newdomain"
 
 # Create the PhpMyAdmin server block

@@ -407,14 +407,22 @@ wait
 echo "The LEMP Stack has been Installed"
 echo ""
 sleep 5
-echo "Now downloding latest MODX..."
+echo "Now downloding MODX 2.8.1..."
 
 # Make sure the current directory is home
 cd /home/$UN
 
 # Download MODX
 wget -O modx.zip https://modx.com/download/direct?id=modx-2.8.1-pl-advanced.zip&0=abs
-wait
+sleep 15
+
+# Keep the user informed
+echo "MODX 2.8.1 download complete"
+echo ""
+sleep 5
+echo "Unzipping MODX..."
+sleep 2
+
 sudo unzip /home/$UN/modx.zip
 wait
 sudo mkdir /var/www/$newdomain
@@ -440,6 +448,7 @@ wait
 #Restart PHP-FPM and Nginx
 sudo systemctl restart nginx
 wait
+
 sudo systemctl restart php7.4-fpm
 wait
 
@@ -472,13 +481,6 @@ APT::Periodic::AutocleanInterval "7";
 APT::Periodic::Unattended-Upgrade "1";
 EOF
 wait
-
-# Keep the user informed
-echo "MODX 2.8.1 download complete"
-echo ""
-sleep 5
-echo "Creating database for $newdomain..."
-sleep 2
 
 # Write the setup information to files
 FP="/home/$UN/mysql_info_$newdomain.txt"

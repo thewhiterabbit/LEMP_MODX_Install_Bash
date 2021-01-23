@@ -415,7 +415,7 @@ cd /home/$UN
 # Download MODX
 wget -O modx.zip https://modx.com/download/direct?id=modx-2.8.1-pl-advanced.zip&0=abs
 wait
-unzip modx.zip
+sudo unzip /home/$UN/modx.zip
 wait
 sudo mkdir /var/www/$newdomain
 wait

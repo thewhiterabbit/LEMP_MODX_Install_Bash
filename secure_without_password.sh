@@ -119,5 +119,5 @@ else
 fi
 
 echo "Your changes have been applied successfully."
-echo "The ssh servive has been reloaded."
+echo "The ssh service has been reloaded."
 echo ""

@@ -436,6 +436,8 @@ sudo chown -R www-data:www-data /home/$UN/modx/core
 wait
 sudo mkdir /usr/share/phpMyAdmin/tmp
 wait
+sudo chmod -R 755 /usr/share/phpMyAdmin
+wait
 sudo chmod 777 /usr/share/phpMyAdmin/tmp
 wait
 sudo ln -sf /usr/share/phpmyadmin /var/www/phpMyAdmin

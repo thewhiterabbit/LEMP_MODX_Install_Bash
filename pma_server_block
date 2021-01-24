@@ -1,31 +1,33 @@
 server {
-   listen 80;
-   server_name {PMAHOST} www.{PMAHOST};
-   root /usr/share/phpMyAdmin;
+    listen 80;
+    server_name {PMAHOST} www.{PMAHOST};
+    root /usr/share/phpMyAdmin;
 
-   location /{PMASUB} {
-      index index.php;
-   }
+    # Add index.php to the list if you are using PHP
+    index index.html index.htm index.nginx-debian.html index.php;
 
-## Images and static content is treated different
-   location ~* ^.+.(jpg|jpeg|gif|css|png|js|ico|xml)$ {
-      access_log off;
-      expires 30d;
-   }
+    location / {
+            # First attempt to serve request as file, then
+            # as directory, then fall back to displaying a 404.
+            try_files $uri $uri/ =404;
+    }
 
-   location ~ /\.ht {
-      deny all;
-   }
+    # pass PHP scripts to FastCGI server
+    location ~ \.php$ {
+            include snippets/fastcgi-php.conf;
 
-   location ~ /(libraries|setup/frames|setup/libs) {
-      deny all;
-      return 404;
-   }
+            # With php-fpm (or other unix sockets):
+            fastcgi_pass unix:/var/run/php/php7.4-fpm.sock;
+            # With php-cgi (or other tcp sockets):
+            #fastcgi_pass 127.0.0.1:9000;
+    }
 
-   location ~ \.php$ {
-      include /etc/nginx/fastcgi_params;
-      fastcgi_pass unix:/run/php/php7.4-fpm.sock;
-      fastcgi_index index.php;
-      fastcgi_param SCRIPT_FILENAME /usr/share/phpMyAdmin$fastcgi_script_name;
-   }
+
+    location ^~ /{PMASUB}/ {
+            allow 127.0.0.1;
+            allow ::1;
+            deny all;
+            include snippets/fastcgi-php.conf;
+            fastcgi_pass unix:/var/run/php/php7.4-fpm.sock;
+    }
 }

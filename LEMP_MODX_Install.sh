@@ -87,7 +87,7 @@ wait
 
 #Install PHP7.4 and common PHP packages
 echo "Installing PHP..."
-sudo apt install -y php-fpm php-mysql php-json php-mbstring php-xml
+sudo apt install -y php-fpm php-mysql php-json php-mbstring php-xml php-curl
 wait
 sudo systemctl enable php7.4-fpm
 wait
